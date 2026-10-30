@@ -43,13 +43,12 @@ export const Navbar: React.FC = () => {
           <a href="#plans" className="hover:text-blue-600 dark:hover:text-white transition-colors">
             Pricing Plans
           </a>
-          <Link
-            href="/dashboard"
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors flex items-center gap-1"
+          <a
+            href="#services"
+            className="hover:text-blue-600 dark:hover:text-white transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Interactive Demo</span>
-          </Link>
+            DDEX Ingestion
+          </a>
         </nav>
 
         {/* Action Buttons & Theme Switcher */}

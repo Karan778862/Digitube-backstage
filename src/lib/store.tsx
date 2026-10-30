@@ -39,8 +39,10 @@ interface ActiveAudioState {
 
 export interface DigiTubeContextType {
   // Current user & active context
-  currentUser: typeof INITIAL_USER;
-  setCurrentUser: React.Dispatch<React.SetStateAction<typeof INITIAL_USER>>;
+  currentUser: any;
+  setCurrentUser: React.Dispatch<React.SetStateAction<any>>;
+  isAuthenticated: boolean;
+  isAuthLoading: boolean;
   loginUser: (user: any) => void;
   logoutUser: () => Promise<void>;
   switchRole: (role: UserRole) => void;
@@ -96,6 +98,19 @@ export interface DigiTubeContextType {
 
 const DigiTubeContext = createContext<DigiTubeContextType | undefined>(undefined);
 
+export const EMPTY_USER = {
+  id: '',
+  fullName: '',
+  stageName: '',
+  email: '',
+  role: 'GUEST' as UserRole,
+  organizationName: '',
+  isVerified: false,
+  avatar: '',
+  isDemo: false,
+  isAuthenticated: false,
+};
+
 export const EMPTY_WALLET: WalletBalance = {
   availableBalance: 0,
   pendingRoyalty: 0,
@@ -114,7 +129,8 @@ export const EMPTY_WALLET: WalletBalance = {
 };
 
 export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<any>({ ...INITIAL_USER, isDemo: false });
+  const [currentUser, setCurrentUser] = useState<any>(EMPTY_USER);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const [activeContext, setActiveContext] = useState<'ARTIST' | 'LABEL' | 'ADMIN'>('ARTIST');
 
   // Real accounts start with empty catalog and empty ledger
@@ -136,14 +152,15 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
 
     setCurrentUser({
       id: user.id || user._id || 'usr_' + Date.now(),
-      fullName: user.fullName || 'Artist',
+      fullName: user.fullName || user.stageName || 'Artist',
       stageName: user.stageName || user.fullName || 'Artist',
       email: user.email || '',
       role: user.role || 'ARTIST',
       organizationName: user.organizationName || (user.role === 'RECORD_LABEL' ? 'Record Label' : 'Independent Artist'),
       isVerified: true,
-      avatar: user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+      avatar: user.avatarUrl || user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
       isDemo,
+      isAuthenticated: true,
     });
 
     if (isDemo) {
@@ -218,7 +235,7 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
     } catch {}
-    setCurrentUser({ ...INITIAL_USER, isDemo: false });
+    setCurrentUser(EMPTY_USER);
     setReleases([]);
     setWallet(EMPTY_WALLET);
     setPayouts([]);
@@ -227,14 +244,27 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
 
   // Check active session on initial load
   useEffect(() => {
+    let isMounted = true;
     fetch('/api/auth/me')
       .then((res) => res.json())
       .then((data) => {
+        if (!isMounted) return;
         if (data?.authenticated && data?.user) {
           loginUser(data.user);
+        } else {
+          setCurrentUser(EMPTY_USER);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (isMounted) setCurrentUser(EMPTY_USER);
+      })
+      .finally(() => {
+        if (isMounted) setIsAuthLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Save changes for real user
@@ -265,6 +295,8 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
         organizationName: 'DigiTube HQ (Internal Operations)',
         isVerified: true,
         avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+        isDemo: true,
+        isAuthenticated: true,
       });
       setActiveContext('ADMIN');
     } else if (role === 'RECORD_LABEL') {
@@ -277,10 +309,21 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
         organizationName: 'Desi Beats Records (Label Tier)',
         isVerified: true,
         avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&auto=format&fit=crop&q=80',
+        isDemo: true,
+        isAuthenticated: true,
       });
       setActiveContext('LABEL');
     } else {
-      setCurrentUser(INITIAL_USER);
+      setCurrentUser({
+        ...INITIAL_USER,
+        isDemo: true,
+        isAuthenticated: true,
+      });
+      setReleases(INITIAL_RELEASES);
+      setWallet(INITIAL_WALLET);
+      setPayouts(INITIAL_PAYOUTS);
+      setStatements(INITIAL_STATEMENTS);
+      setRoyaltyLines(INITIAL_ROYALTY_LINES);
       setActiveContext('ARTIST');
     }
   };
@@ -568,11 +611,19 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
     setAudioState({ isOpen: false });
   };
 
+  const isAuthenticated = Boolean(
+    currentUser?.isAuthenticated ||
+    currentUser?.isDemo ||
+    (currentUser?.email && currentUser?.email.length > 0 && currentUser?.role !== 'GUEST')
+  );
+
   return (
     <DigiTubeContext.Provider
       value={{
         currentUser,
         setCurrentUser,
+        isAuthenticated,
+        isAuthLoading,
         loginUser,
         logoutUser,
         switchRole,

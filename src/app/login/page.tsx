@@ -65,8 +65,13 @@ export default function LoginPage() {
         'SUPPORT_STAFF',
       ];
 
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectUrl = searchParams.get('redirect');
+
       setTimeout(() => {
-        if (adminRoles.includes(data.user.role)) {
+        if (redirectUrl && redirectUrl.startsWith('/')) {
+          router.push(redirectUrl);
+        } else if (adminRoles.includes(data.user.role)) {
           router.push('/admin');
         } else {
           router.push('/dashboard');

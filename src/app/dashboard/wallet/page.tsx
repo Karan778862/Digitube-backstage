@@ -322,7 +322,9 @@ export default function WalletPage() {
                     }`}
                   >
                     <div className="font-bold">UPI Direct</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">arijit@okhdfcbank</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                      {wallet.bankAccount?.upiId || 'Verified UPI ID'}
+                    </div>
                   </button>
                 </div>
               </div>

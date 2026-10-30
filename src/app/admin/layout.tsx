@@ -14,6 +14,7 @@ import {
   LogIn,
   ShieldX,
   AlertTriangle,
+  RefreshCw,
 } from 'lucide-react';
 
 const ADMIN_ROLES = [
@@ -39,10 +40,27 @@ const ROUTE_PERMISSIONS: { prefix: string; allowed: string[]; title: string }[] 
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { currentUser } = useDigiTube();
+  const { currentUser, isAuthLoading } = useDigiTube();
 
   const userRole = currentUser?.role || 'GUEST';
   const isStaffAuthorized = ADMIN_ROLES.includes(userRole);
+
+  // While checking auth status on initial load, show a clean loading gate
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-center items-center px-4">
+        <div className="p-8 rounded-2xl bg-slate-950 border border-amber-500/20 shadow-2xl flex flex-col items-center text-center space-y-4 max-w-sm">
+          <div className="w-12 h-12 rounded-xl bg-amber-600/20 border border-amber-500/30 text-amber-400 flex items-center justify-center animate-pulse">
+            <RefreshCw className="w-6 h-6 animate-spin" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-sm font-bold text-white tracking-wide">DigiTube Privileged Gate</h2>
+            <p className="text-xs text-slate-400">Verifying administrative credentials...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // 1. If user is not staff at all, block entire admin portal
   if (!isStaffAuthorized) {
@@ -72,10 +90,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-left text-xs space-y-1.5 font-mono">
             <div className="text-[11px] text-slate-500 font-sans font-semibold">Active Session:</div>
             <div className="text-slate-200 truncate">
-              User: <span className="text-white font-bold">{currentUser.fullName || currentUser.stageName || 'Guest'}</span>
+              User: <span className="text-white font-bold">{currentUser?.fullName || currentUser?.stageName || 'Guest (Not Signed In)'}</span>
             </div>
             <div className="text-slate-400 truncate">
-              Email: <span className="text-slate-300">{currentUser.email || 'Not logged in'}</span>
+              Email: <span className="text-slate-300">{currentUser?.email || 'None'}</span>
             </div>
             <div className="text-slate-400">
               Assigned Role: <span className="text-amber-400 font-bold">{userRole}</span>

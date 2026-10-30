@@ -42,11 +42,11 @@ export default function DashboardOverviewPage() {
           <div className="flex items-end justify-between pt-1">
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold font-sans tracking-tight text-slate-900 dark:text-white">
-                {liveReleases > 0 ? liveReleases : totalReleases > 0 ? totalReleases : 12}
+                {liveReleases > 0 ? liveReleases : totalReleases > 0 ? totalReleases : currentUser?.isDemo ? 12 : 0}
               </span>
               <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
                 <TrendingUp className="w-3 h-3" />
-                <span>+8%</span>
+                <span>{totalReleases > 0 || currentUser?.isDemo ? '+8%' : 'Ready'}</span>
               </span>
             </div>
 
@@ -74,7 +74,7 @@ export default function DashboardOverviewPage() {
 
           <div className="flex items-center justify-between pt-1">
             <span className="text-3xl font-bold font-sans tracking-tight text-slate-900 dark:text-white">
-              84%
+              {totalReleases > 0 ? '100%' : currentUser?.isDemo ? '84%' : '0%'}
             </span>
 
             {/* Multi-Color Conic Gradient Donut Ring */}
@@ -95,7 +95,7 @@ export default function DashboardOverviewPage() {
 
           <div className="flex items-baseline justify-between pt-1">
             <span className="text-3xl font-bold font-sans tracking-tight text-slate-900 dark:text-white">
-              91%
+              {totalReleases > 0 ? '98%' : currentUser?.isDemo ? '91%' : '100%'}
             </span>
             <span className="text-[11px] text-slate-400 font-medium">Optimal Delivery</span>
           </div>
@@ -113,12 +113,14 @@ export default function DashboardOverviewPage() {
               <div>
                 <span className="text-[11px] text-slate-400 block">Revenue</span>
                 <span className="text-sm font-bold text-slate-900 dark:text-white">
-                  {wallet.availableBalance > 0 ? formatCurrencyINR(wallet.availableBalance) : '$245K'}
+                  {wallet.availableBalance > 0 ? formatCurrencyINR(wallet.availableBalance) : currentUser?.isDemo ? '₹2,45,000' : '₹0.00'}
                 </span>
               </div>
               <div>
                 <span className="text-[11px] text-slate-400 block">Velocity</span>
-                <span className="text-sm font-bold text-slate-900 dark:text-white">78%</span>
+                <span className="text-sm font-bold text-slate-900 dark:text-white">
+                  {totalReleases > 0 || currentUser?.isDemo ? '78%' : '0%'}
+                </span>
               </div>
             </div>
           </div>
@@ -232,9 +234,9 @@ export default function DashboardOverviewPage() {
                 <span className="w-1 h-9 rounded-full bg-blue-500 shrink-0" />
                 <div className="min-w-0">
                   <div className="font-bold text-slate-900 dark:text-white truncate">
-                    {releases[0]?.title || 'Client Portal V2'}
+                    {releases[0]?.title || 'DDEX DSP Batch Ingestion'}
                   </div>
-                  <div className="text-[11px] text-slate-400">Jun 25, 2026</div>
+                  <div className="text-[11px] text-slate-400">Scheduled Ingestion</div>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
@@ -248,9 +250,9 @@ export default function DashboardOverviewPage() {
                 <span className="w-1 h-9 rounded-full bg-amber-500 shrink-0" />
                 <div className="min-w-0">
                   <div className="font-bold text-slate-900 dark:text-white truncate">
-                    {releases[1]?.title || 'Market Analysis'}
+                    {releases[1]?.title || 'Metadata QA Compliance Review'}
                   </div>
-                  <div className="text-[11px] text-slate-400">Jun 28, 2026</div>
+                  <div className="text-[11px] text-slate-400">Editorial Verification</div>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
@@ -264,9 +266,9 @@ export default function DashboardOverviewPage() {
                 <span className="w-1 h-9 rounded-full bg-rose-500 shrink-0" />
                 <div className="min-w-0">
                   <div className="font-bold text-slate-900 dark:text-white truncate">
-                    {releases[2]?.title || 'Security Audit'}
+                    {releases[2]?.title || 'Automated Royalty Ledger Sync'}
                   </div>
-                  <div className="text-[11px] text-slate-400">Jun 25, 2026</div>
+                  <div className="text-[11px] text-slate-400">Double-Entry Audit</div>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400">
@@ -381,7 +383,7 @@ export default function DashboardOverviewPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="font-bold text-slate-900 dark:text-white truncate">
-                  {currentUser.stageName || currentUser.fullName || 'Sarah Chen'}
+                  {currentUser.stageName || currentUser.fullName || 'Authorized Artist'}
                 </div>
                 <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -395,12 +397,12 @@ export default function DashboardOverviewPage() {
               <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                 <img
                   src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-                  alt="Nathar Names"
+                  alt="Operations Desk"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-bold text-slate-900 dark:text-white truncate">Nathar Names</div>
+                <div className="font-bold text-slate-900 dark:text-white truncate">DigiTube Operations Desk</div>
                 <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   <span>Online</span>
@@ -413,12 +415,12 @@ export default function DashboardOverviewPage() {
               <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                 <img
                   src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80"
-                  alt="Astra Hember"
+                  alt="DSP Lead"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-bold text-slate-900 dark:text-white truncate">Astra Hember</div>
+                <div className="font-bold text-slate-900 dark:text-white truncate">DSP Compliance Lead</div>
                 <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   <span>Online</span>
