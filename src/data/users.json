@@ -1,0 +1,102 @@
+[
+  {
+    "id": "usr_karan_001",
+    "email": "karanmaximiseteck@gmail.com",
+    "passwordHash": "$2b$10$yBWqtYS0JrckEk1FV76CVecqn96.4wjKGTj5or9yQ3uhLRflDAMie",
+    "fullName": "Karan",
+    "stageName": "Super Admin",
+    "role": "SUPER_ADMIN",
+    "assignedScope": "ALL",
+    "permissions": [
+      "releases.view",
+      "releases.review",
+      "releases.approve",
+      "royalties.payout",
+      "staff.manage",
+      "catalog.ddex"
+    ],
+    "verificationStatus": "ACTIVE",
+    "mfaEnabled": true,
+    "isDemo": false,
+    "createdAt": "2026-10-27T17:50:00.000Z",
+    "updatedAt": "2026-10-30T00:15:00.000Z"
+  },
+  {
+    "id": "usr_karan_002",
+    "email": "kkpkaran22@gmail.com",
+    "passwordHash": "$2b$10$yBWqtYS0JrckEk1FV76CVecqn96.4wjKGTj5or9yQ3uhLRflDAMie",
+    "fullName": "Karan Pandit",
+    "stageName": "Super Admin",
+    "role": "SUPER_ADMIN",
+    "assignedScope": "ALL",
+    "permissions": [
+      "releases.view",
+      "releases.review",
+      "releases.approve",
+      "royalties.payout",
+      "staff.manage",
+      "catalog.ddex"
+    ],
+    "verificationStatus": "ACTIVE",
+    "mfaEnabled": true,
+    "isDemo": false,
+    "createdAt": "2026-10-30T00:40:00.000Z",
+    "updatedAt": "2026-10-30T00:40:00.000Z"
+  },
+  {
+    "id": "usr_superadmin_002",
+    "email": "admin@digitube.com",
+    "passwordHash": "$2b$10$yBWqtYS0JrckEk1FV76CVecqn96.4wjKGTj5or9yQ3uhLRflDAMie",
+    "fullName": "DigiTube Super Admin",
+    "stageName": "Administrator",
+    "role": "SUPER_ADMIN",
+    "assignedScope": "ALL",
+    "permissions": [
+      "releases.view",
+      "releases.review",
+      "releases.approve",
+      "royalties.payout",
+      "staff.manage",
+      "catalog.ddex"
+    ],
+    "verificationStatus": "ACTIVE",
+    "mfaEnabled": true,
+    "isDemo": false,
+    "createdAt": "2026-10-30T00:15:00.000Z",
+    "updatedAt": "2026-10-30T00:15:00.000Z"
+  },
+  {
+    "id": "usr_1793298547831_591",
+    "email": "kp110033@gmail.com",
+    "passwordHash": "$2b$10$di33gAk1Fs3Fcz3G6EdSLOlrT0jMXl6npTQPb6RPiqdeE/S7f2HWO",
+    "fullName": "kamlesh kumar pandit",
+    "stageName": "Kamlesh Pandit",
+    "mobile": "9899708677",
+    "role": "ARTIST",
+    "country": "India",
+    "countryCode": "+91",
+    "verificationStatus": "ACTIVE",
+    "mfaEnabled": false,
+    "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+    "isDemo": false,
+    "createdAt": "2026-10-29T18:29:07.831Z",
+    "updatedAt": "2026-10-29T18:29:07.831Z"
+  },
+  {
+    "id": "usr_staff_1793300861694",
+    "email": "kajal@gmail.com",
+    "passwordHash": "$2b$10$9sK3L.xyh.6GcP0Sa./oSOGsoS5gOo4r.I52DXnnuLFsGm4ORanu6",
+    "fullName": "kajal",
+    "stageName": "kajal",
+    "role": "SUPPORT_STAFF",
+    "assignedScope": "QA_ONLY",
+    "permissions": [
+      "support.tickets",
+      "support.view"
+    ],
+    "verificationStatus": "ACTIVE",
+    "mfaEnabled": true,
+    "createdAt": "2026-10-29T19:07:41.694Z",
+    "updatedAt": "2026-10-29T19:07:41.694Z"
+  }
+]

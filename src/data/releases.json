@@ -1,0 +1,615 @@
+[
+  {
+    "id": "rel_test_kamlesh_001",
+    "releaseCode": "DGT-2026-7788",
+    "organizationId": "org_001",
+    "artistId": "kp110033@gmail.com",
+    "artistStageName": "Kamlesh Pandit",
+    "releaseType": "SINGLE",
+    "title": "Tere Sang Pyaar",
+    "primaryGenre": "Indian Pop",
+    "primaryLanguage": "Hindi",
+    "targetReleaseDate": "2026-11-15",
+    "upcEan": "890192847192",
+    "territoryType": "WORLDWIDE",
+    "artworkUrl": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80",
+    "status": "APPROVED",
+    "createdAt": "2026-10-30T05:30:00Z",
+    "updatedAt": "2026-10-30T06:03:54.924Z",
+    "tracks": [
+      {
+        "id": "trk_kp_1",
+        "trackNumber": 1,
+        "discNumber": 1,
+        "title": "Tere Sang Pyaar",
+        "isrcCode": "INDGT2600999",
+        "durationSeconds": 215,
+        "audioMasterUrl": "https://actions.google.com/sounds/v1/ambiences/daytime_forest_bonfire.ogg",
+        "audioFileName": "Tere_Sang_Pyaar_Master.wav",
+        "audioFormat": "WAV",
+        "audioBitrate": "24-bit / 48kHz (Lossless)",
+        "credits": [
+          {
+            "id": "cr_1",
+            "name": "Kamlesh Pandit",
+            "role": "MAIN_ARTIST"
+          }
+        ]
+      }
+    ],
+    "splits": [
+      {
+        "id": "sp_1",
+        "payeeName": "Kamlesh Pandit",
+        "payeeEmail": "kp110033@gmail.com",
+        "percentageShare": 100,
+        "roleDescription": "Primary Creator",
+        "isConfirmed": true
+      }
+    ],
+    "dspStatuses": [
+      {
+        "store": "spotify",
+        "name": "Spotify",
+        "status": "PENDING"
+      },
+      {
+        "store": "apple_music",
+        "name": "Apple Music",
+        "status": "PENDING"
+      }
+    ],
+    "enabledDsps": [
+      "spotify",
+      "apple_music"
+    ],
+    "reviewNotes": "Approved by Super Admin Karan"
+  },
+  {
+    "id": "rel_001",
+    "releaseCode": "DGT-2026-8912",
+    "organizationId": "org_001",
+    "artistId": "usr_artist_001",
+    "artistStageName": "Arijit Vibe",
+    "releaseType": "SINGLE",
+    "title": "Kesariya Lofi Sunset",
+    "versionSubtitle": "Chill Lofi Mix",
+    "recordLabel": "DigiTube Music India",
+    "primaryGenre": "Indian Pop",
+    "secondaryGenre": "Lo-Fi / Chillout",
+    "primaryLanguage": "Hindi",
+    "targetReleaseDate": "2026-10-15",
+    "releaseTimezone": "Asia/Kolkata",
+    "originalReleaseDate": "2026-10-15",
+    "upcEan": "890128492019",
+    "territoryType": "WORLDWIDE",
+    "artworkUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    "artworkChecksum": "sha256_e8f60d4c9812_art",
+    "pLineYear": 2026,
+    "pLineText": "DigiTube Network / Arijit Vibe",
+    "cLineYear": 2026,
+    "cLineText": "DigiTube Network",
+    "workType": "ORIGINAL",
+    "hasContentIdOptIn": true,
+    "status": "LIVE",
+    "reviewNotes": "Metadata verified. High resolution master audio passed automated LUFS checks.",
+    "reviewedBy": "Staff QA Lead (Priya M.)",
+    "createdAt": "2026-10-01T10:30:00Z",
+    "updatedAt": "2026-10-15T00:00:00Z",
+    "tracks": [
+      {
+        "id": "trk_001",
+        "trackNumber": 1,
+        "discNumber": 1,
+        "title": "Kesariya Lofi Sunset",
+        "versionSubtitle": "Chill Lofi Mix",
+        "isrcCode": "INDGT2600101",
+        "durationSeconds": 218,
+        "audioMasterUrl": "https://actions.google.com/sounds/v1/ambiences/daytime_forest_bonfire.ogg",
+        "audioFileName": "Kesariya_Lofi_Master_24bit_48kHz.wav",
+        "audioFormat": "WAV",
+        "audioBitrate": "24-bit / 48kHz (Lossless)",
+        "isExplicit": false,
+        "isInstrumental": false,
+        "language": "Hindi",
+        "bpm": 82,
+        "musicalKey": "D Minor",
+        "previewStartTime": 45,
+        "lyrics": "Chanda ki chaaon mein, behti hui hawa...\nKesariya rang roop tere naina...",
+        "credits": [
+          {
+            "id": "c1",
+            "name": "Arijit Vibe",
+            "role": "MAIN_ARTIST",
+            "ipiCode": "IPI-98214"
+          },
+          {
+            "id": "c2",
+            "name": "Rohan Mehra",
+            "role": "COMPOSER",
+            "ipiCode": "IPI-11029"
+          },
+          {
+            "id": "c3",
+            "name": "Pooja Verma",
+            "role": "LYRICIST"
+          },
+          {
+            "id": "c4",
+            "name": "Kunal Sen",
+            "role": "PRODUCER"
+          }
+        ]
+      }
+    ],
+    "splits": [
+      {
+        "id": "s1",
+        "payeeName": "Arijit Vibe",
+        "payeeEmail": "arijit@digitubenetwork.com",
+        "percentageShare": 70,
+        "roleDescription": "Primary Artist",
+        "isConfirmed": true
+      },
+      {
+        "id": "s2",
+        "payeeName": "Rohan Mehra",
+        "payeeEmail": "rohan.beats@gmail.com",
+        "percentageShare": 20,
+        "roleDescription": "Producer & Composer",
+        "isConfirmed": true
+      },
+      {
+        "id": "s3",
+        "payeeName": "Pooja Verma",
+        "payeeEmail": "pooja.lyrics@yahoo.com",
+        "percentageShare": 10,
+        "roleDescription": "Lyricist",
+        "isConfirmed": true
+      }
+    ],
+    "dspStatuses": [
+      {
+        "store": "spotify",
+        "name": "Spotify",
+        "status": "LIVE",
+        "url": "https://open.spotify.com/track/sample-kesariya-lofi",
+        "externalId": "sp_9812301"
+      },
+      {
+        "store": "apple_music",
+        "name": "Apple Music",
+        "status": "LIVE",
+        "url": "https://music.apple.com/in/album/kesariya-lofi-sunset/sample",
+        "externalId": "am_4920192"
+      },
+      {
+        "store": "youtube_music",
+        "name": "YouTube Music",
+        "status": "LIVE",
+        "url": "https://music.youtube.com/watch?v=sample-kesariya",
+        "externalId": "yt_89123"
+      },
+      {
+        "store": "jiosaavn",
+        "name": "JioSaavn",
+        "status": "LIVE",
+        "url": "https://www.jiosaavn.com/song/kesariya-lofi/sample",
+        "externalId": "js_90219"
+      },
+      {
+        "store": "amazon_music",
+        "name": "Amazon Music",
+        "status": "LIVE",
+        "url": "https://music.amazon.in/albums/sample",
+        "externalId": "az_19283"
+      },
+      {
+        "store": "meta",
+        "name": "Instagram & Facebook",
+        "status": "LIVE",
+        "externalId": "fb_audio_128"
+      }
+    ],
+    "enabledDsps": [
+      "spotify",
+      "apple_music",
+      "youtube_music",
+      "amazon_music",
+      "jiosaavn",
+      "meta"
+    ]
+  },
+  {
+    "id": "rel_002",
+    "releaseCode": "DGT-2026-9044",
+    "organizationId": "org_001",
+    "artistId": "usr_artist_001",
+    "artistStageName": "Arijit Vibe",
+    "releaseType": "SINGLE",
+    "title": "Dil Ka Dariya (Acoustic Night)",
+    "versionSubtitle": "Live Unplugged",
+    "recordLabel": "DigiTube Music India",
+    "primaryGenre": "Acoustic / Folk",
+    "secondaryGenre": "Sufi",
+    "primaryLanguage": "Hindi",
+    "targetReleaseDate": "2026-11-05",
+    "releaseTimezone": "Asia/Kolkata",
+    "upcEan": "890128492088",
+    "territoryType": "WORLDWIDE",
+    "artworkUrl": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80",
+    "pLineYear": 2026,
+    "pLineText": "DigiTube Network / Arijit Vibe",
+    "cLineYear": 2026,
+    "cLineText": "DigiTube Network",
+    "workType": "ORIGINAL",
+    "hasContentIdOptIn": true,
+    "status": "IN_REVIEW",
+    "reviewNotes": "In QA Queue: Audio master spectrum analysis and copyright validation in progress.",
+    "createdAt": "2026-10-25T14:15:00Z",
+    "updatedAt": "2026-10-26T09:00:00Z",
+    "tracks": [
+      {
+        "id": "trk_002",
+        "trackNumber": 1,
+        "discNumber": 1,
+        "title": "Dil Ka Dariya (Acoustic Night)",
+        "isrcCode": "INDGT2600102",
+        "durationSeconds": 245,
+        "audioMasterUrl": "https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg",
+        "audioFileName": "Dil_Ka_Dariya_Acoustic_Master.wav",
+        "audioFormat": "WAV",
+        "audioBitrate": "24-bit / 96kHz",
+        "isExplicit": false,
+        "isInstrumental": false,
+        "language": "Hindi",
+        "bpm": 76,
+        "musicalKey": "G Major",
+        "previewStartTime": 30,
+        "credits": [
+          {
+            "id": "c5",
+            "name": "Arijit Vibe",
+            "role": "MAIN_ARTIST"
+          },
+          {
+            "id": "c6",
+            "name": "Samar Khan",
+            "role": "PERFORMER"
+          }
+        ]
+      }
+    ],
+    "splits": [
+      {
+        "id": "s4",
+        "payeeName": "Arijit Vibe",
+        "payeeEmail": "arijit@digitubenetwork.com",
+        "percentageShare": 100,
+        "roleDescription": "Sole Creator",
+        "isConfirmed": true
+      }
+    ],
+    "dspStatuses": [
+      {
+        "store": "spotify",
+        "name": "Spotify",
+        "status": "PENDING"
+      },
+      {
+        "store": "apple_music",
+        "name": "Apple Music",
+        "status": "PENDING"
+      },
+      {
+        "store": "youtube_music",
+        "name": "YouTube Music",
+        "status": "PENDING"
+      },
+      {
+        "store": "jiosaavn",
+        "name": "JioSaavn",
+        "status": "PENDING"
+      }
+    ],
+    "enabledDsps": [
+      "spotify",
+      "apple_music",
+      "youtube_music",
+      "jiosaavn"
+    ]
+  },
+  {
+    "id": "rel_003",
+    "releaseCode": "DGT-2026-7821",
+    "organizationId": "org_001",
+    "artistId": "usr_artist_001",
+    "artistStageName": "Arijit Vibe",
+    "releaseType": "EP",
+    "title": "Mumbai Monsoon Diaries",
+    "recordLabel": "DigiTube Music India",
+    "primaryGenre": "Bollywood Indipop",
+    "secondaryGenre": "Indie Fusion",
+    "primaryLanguage": "Hindi",
+    "targetReleaseDate": "2026-08-20",
+    "releaseTimezone": "Asia/Kolkata",
+    "upcEan": "890128491823",
+    "territoryType": "WORLDWIDE",
+    "artworkUrl": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80",
+    "pLineYear": 2026,
+    "pLineText": "DigiTube Network",
+    "cLineYear": 2026,
+    "cLineText": "DigiTube Network",
+    "workType": "ORIGINAL",
+    "hasContentIdOptIn": true,
+    "status": "LIVE",
+    "reviewNotes": "Delivered via DigiTube DDEX profile v3.8. All stores active.",
+    "reviewedBy": "Operations Admin (Ananya R.)",
+    "createdAt": "2026-08-01T12:00:00Z",
+    "updatedAt": "2026-08-20T00:00:00Z",
+    "tracks": [
+      {
+        "id": "trk_003a",
+        "trackNumber": 1,
+        "discNumber": 1,
+        "title": "Baarish Ka Pehla Khat",
+        "isrcCode": "INDGT2600045",
+        "durationSeconds": 195,
+        "audioMasterUrl": "https://actions.google.com/sounds/v1/weather/rain_heavy.ogg",
+        "audioFormat": "WAV",
+        "audioBitrate": "24-bit / 48kHz",
+        "isExplicit": false,
+        "isInstrumental": false,
+        "language": "Hindi",
+        "previewStartTime": 30,
+        "credits": [
+          {
+            "id": "c7",
+            "name": "Arijit Vibe",
+            "role": "MAIN_ARTIST"
+          }
+        ]
+      },
+      {
+        "id": "trk_003b",
+        "trackNumber": 2,
+        "discNumber": 1,
+        "title": "Marine Drive Echoes",
+        "isrcCode": "INDGT2600046",
+        "durationSeconds": 230,
+        "audioMasterUrl": "https://actions.google.com/sounds/v1/water/ocean_waves.ogg",
+        "audioFormat": "WAV",
+        "audioBitrate": "24-bit / 48kHz",
+        "isExplicit": false,
+        "isInstrumental": true,
+        "language": "Hindi",
+        "previewStartTime": 20,
+        "credits": [
+          {
+            "id": "c8",
+            "name": "Arijit Vibe",
+            "role": "MAIN_ARTIST"
+          }
+        ]
+      }
+    ],
+    "splits": [
+      {
+        "id": "s5",
+        "payeeName": "Arijit Vibe",
+        "payeeEmail": "arijit@digitubenetwork.com",
+        "percentageShare": 100,
+        "roleDescription": "Artist Share",
+        "isConfirmed": true
+      }
+    ],
+    "dspStatuses": [
+      {
+        "store": "spotify",
+        "name": "Spotify",
+        "status": "LIVE",
+        "url": "https://open.spotify.com/album/sample-mumbai-monsoon"
+      },
+      {
+        "store": "apple_music",
+        "name": "Apple Music",
+        "status": "LIVE",
+        "url": "https://music.apple.com/in/album/sample"
+      },
+      {
+        "store": "youtube_music",
+        "name": "YouTube Music",
+        "status": "LIVE",
+        "url": "https://music.youtube.com/playlist?list=sample"
+      },
+      {
+        "store": "jiosaavn",
+        "name": "JioSaavn",
+        "status": "LIVE",
+        "url": "https://www.jiosaavn.com/album/sample"
+      },
+      {
+        "store": "amazon_music",
+        "name": "Amazon Music",
+        "status": "LIVE"
+      }
+    ],
+    "enabledDsps": [
+      "spotify",
+      "apple_music",
+      "youtube_music",
+      "amazon_music",
+      "jiosaavn"
+    ]
+  },
+  {
+    "id": "rel_004",
+    "releaseCode": "DGT-2026-9932",
+    "organizationId": "org_001",
+    "artistId": "usr_artist_001",
+    "artistStageName": "Arijit Vibe",
+    "releaseType": "SINGLE",
+    "title": "Sufi Soul (Mystic Flute)",
+    "versionSubtitle": "Club Re-Edit",
+    "recordLabel": "DigiTube Music India",
+    "primaryGenre": "Electronic / Dance",
+    "secondaryGenre": "Sufi Fusion",
+    "primaryLanguage": "Hindi",
+    "targetReleaseDate": "2026-11-20",
+    "releaseTimezone": "Asia/Kolkata",
+    "upcEan": "890128499312",
+    "territoryType": "WORLDWIDE",
+    "artworkUrl": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&auto=format&fit=crop&q=80",
+    "pLineYear": 2026,
+    "pLineText": "DigiTube Network",
+    "cLineYear": 2026,
+    "cLineText": "DigiTube Network",
+    "workType": "REMIX",
+    "hasContentIdOptIn": false,
+    "status": "CHANGES_REQUIRED",
+    "reviewNotes": "Quality Review Flag: Third-party flute sample detected at 0:42-1:15. Please attach written clearance license or replace with royalty-free recording. Also add original composer credit.",
+    "reviewedBy": "Copyright Compliance (Vikram S.)",
+    "createdAt": "2026-10-24T08:00:00Z",
+    "updatedAt": "2026-10-26T16:00:00Z",
+    "tracks": [
+      {
+        "id": "trk_004",
+        "trackNumber": 1,
+        "discNumber": 1,
+        "title": "Sufi Soul (Mystic Flute)",
+        "isrcCode": "INDGT2600115",
+        "durationSeconds": 210,
+        "audioMasterUrl": "https://actions.google.com/sounds/v1/ambiences/daytime_forest_bonfire.ogg",
+        "audioFormat": "WAV",
+        "audioBitrate": "24-bit / 44.1kHz",
+        "isExplicit": false,
+        "isInstrumental": false,
+        "language": "Hindi",
+        "previewStartTime": 40,
+        "credits": [
+          {
+            "id": "c9",
+            "name": "Arijit Vibe",
+            "role": "MAIN_ARTIST"
+          }
+        ]
+      }
+    ],
+    "splits": [
+      {
+        "id": "s6",
+        "payeeName": "Arijit Vibe",
+        "payeeEmail": "arijit@digitubenetwork.com",
+        "percentageShare": 100,
+        "roleDescription": "Artist Share",
+        "isConfirmed": true
+      }
+    ],
+    "dspStatuses": [
+      {
+        "store": "spotify",
+        "name": "Spotify",
+        "status": "PENDING"
+      },
+      {
+        "store": "apple_music",
+        "name": "Apple Music",
+        "status": "PENDING"
+      }
+    ],
+    "enabledDsps": [
+      "spotify",
+      "apple_music"
+    ]
+  },
+  {
+    "id": "rel_005",
+    "releaseCode": "DGT-2026-9955",
+    "organizationId": "org_001",
+    "artistId": "usr_artist_001",
+    "artistStageName": "Arijit Vibe",
+    "releaseType": "SINGLE",
+    "title": "Midnight in Delhi (Synthwave)",
+    "recordLabel": "DigiTube Music India",
+    "primaryGenre": "Electronic / Synthwave",
+    "primaryLanguage": "Instrumental",
+    "targetReleaseDate": "2026-11-01",
+    "releaseTimezone": "Asia/Kolkata",
+    "upcEan": "890128499551",
+    "territoryType": "WORLDWIDE",
+    "artworkUrl": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&auto=format&fit=crop&q=80",
+    "pLineYear": 2026,
+    "pLineText": "DigiTube Network",
+    "cLineYear": 2026,
+    "cLineText": "DigiTube Network",
+    "workType": "ORIGINAL",
+    "hasContentIdOptIn": true,
+    "status": "PROVIDER_PROCESSING",
+    "reviewNotes": "Approved by Release Manager. Transmitting XML DDEX package to DigiTube partner gateway.",
+    "reviewedBy": "Release Manager (Priya M.)",
+    "createdAt": "2026-10-22T11:00:00Z",
+    "updatedAt": "2026-10-26T18:00:00Z",
+    "tracks": [
+      {
+        "id": "trk_005",
+        "trackNumber": 1,
+        "discNumber": 1,
+        "title": "Midnight in Delhi (Synthwave)",
+        "isrcCode": "INDGT2600120",
+        "durationSeconds": 185,
+        "audioMasterUrl": "https://actions.google.com/sounds/v1/water/ocean_waves.ogg",
+        "audioFormat": "WAV",
+        "audioBitrate": "24-bit / 48kHz",
+        "isExplicit": false,
+        "isInstrumental": true,
+        "language": "Hindi",
+        "previewStartTime": 30,
+        "credits": [
+          {
+            "id": "c10",
+            "name": "Arijit Vibe",
+            "role": "MAIN_ARTIST"
+          }
+        ]
+      }
+    ],
+    "splits": [
+      {
+        "id": "s7",
+        "payeeName": "Arijit Vibe",
+        "payeeEmail": "arijit@digitubenetwork.com",
+        "percentageShare": 100,
+        "roleDescription": "Artist Share",
+        "isConfirmed": true
+      }
+    ],
+    "dspStatuses": [
+      {
+        "store": "spotify",
+        "name": "Spotify",
+        "status": "PROCESSING"
+      },
+      {
+        "store": "apple_music",
+        "name": "Apple Music",
+        "status": "PROCESSING"
+      },
+      {
+        "store": "youtube_music",
+        "name": "YouTube Music",
+        "status": "PROCESSING"
+      },
+      {
+        "store": "jiosaavn",
+        "name": "JioSaavn",
+        "status": "PROCESSING"
+      }
+    ],
+    "enabledDsps": [
+      "spotify",
+      "apple_music",
+      "youtube_music",
+      "jiosaavn"
+    ]
+  }
+]

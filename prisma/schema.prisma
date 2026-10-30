@@ -1,0 +1,602 @@
+// DigiTube Network - Prisma Schema
+// Aligned with Section 18 of DigiTube Complete Music Distribution Platform Blueprint
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------------------
+// 1. Auth & Users
+// -------------------------------------------------------------
+
+enum UserRole {
+  SUPER_ADMIN
+  COMPANY_ADMIN
+  RELEASE_MANAGER
+  CATALOG_STAFF
+  ACCOUNTS_STAFF
+  SUPPORT_STAFF
+  ARTIST
+  LABEL_ADMIN
+  LABEL_MEMBER
+}
+
+enum VerificationStatus {
+  EMAIL_UNVERIFIED
+  VERIFICATION_PENDING
+  CHANGES_REQUIRED
+  APPROVED
+  ACTIVE
+  SUSPENDED
+}
+
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  passwordHash      String
+  fullName          String
+  mobile            String?
+  countryCode       String?            @default("+91")
+  country           String             @default("India")
+  role              UserRole           @default(ARTIST)
+  verificationStatus VerificationStatus @default(VERIFICATION_PENDING)
+  mfaEnabled        Boolean            @default(false)
+  avatarUrl         String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  // Relations
+  artistProfile     ArtistProfile?
+  labelMemberships  OrganizationMember[]
+  auditLogs         AuditLog[]
+  ticketsCreated    Ticket[]           @relation("TicketCreator")
+  assignedTickets   Ticket[]           @relation("TicketAssignee")
+  ticketMessages    TicketMessage[]
+  payoutRequests    PayoutRequest[]
+  walletAccount     WalletAccount?
+
+  @@map("users")
+}
+
+// -------------------------------------------------------------
+// 2. Organizations & Labels (Multi-Tenant)
+// -------------------------------------------------------------
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  legalName   String
+  taxId       String?
+  country     String   @default("India")
+  website     String?
+  isLabel     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     OrganizationMember[]
+  artists     ArtistProfile[]
+  releases    Release[]
+  contracts   Contract[]
+
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             String       @id @default(cuid())
+  organizationId String
+  userId         String
+  role           String       @default("MEMBER") // OWNER, ADMIN, MEMBER
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@map("organization_members")
+}
+
+// -------------------------------------------------------------
+// 3. Artists & Artist Profiles
+// -------------------------------------------------------------
+
+model ArtistProfile {
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  organizationId    String?
+  stageName         String
+  biography         String?       @db.Text
+  primaryGenre      String
+  secondaryGenre    String?
+  language          String        @default("Hindi")
+  country           String        @default("India")
+  city              String?
+  spotifyArtistUrl  String?
+  appleMusicUrl     String?
+  youtubeUrl        String?
+  instagramUrl      String?
+  isniCode          String?
+  ipiCode           String?
+  profileImageUrl   String?
+  isVerified        Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization      Organization? @relation(fields: [organizationId], references: [id])
+  releases          Release[]
+  trackCredits      TrackCredit[]
+  royaltySplits     RoyaltySplit[]
+
+  @@map("artist_profiles")
+}
+
+// -------------------------------------------------------------
+// 4. Releases & Tracks (9-Step Wizard)
+// -------------------------------------------------------------
+
+enum ReleaseType {
+  SINGLE
+  EP
+  ALBUM
+  MUSIC_VIDEO
+}
+
+enum ReleaseStatus {
+  DRAFT
+  SUBMITTED
+  VALIDATION
+  IN_REVIEW
+  CHANGES_REQUIRED
+  REJECTED
+  APPROVED
+  QUEUED
+  PROVIDER_PROCESSING
+  DSP_PROCESSING
+  LIVE
+  TAKEDOWN_PENDING
+  TAKEDOWN_COMPLETED
+}
+
+model Release {
+  id                  String             @id @default(cuid())
+  releaseCode         String             @unique // e.g. DGT-2026-9812
+  organizationId      String?
+  artistProfileId     String
+  releaseType         ReleaseType        @default(SINGLE)
+  status              ReleaseStatus      @default(DRAFT)
+  
+  // Release Metadata
+  title               String
+  versionSubtitle     String?            // e.g. Acoustic, Live, Remastered
+  primaryArtistName   String
+  featuredArtistNames String?
+  recordLabel         String             @default("DigiTube Records")
+  primaryGenre        String
+  secondaryGenre      String?
+  primaryLanguage     String             @default("Hindi")
+  
+  // Timing & Identifiers
+  targetReleaseDate   DateTime
+  releaseTimezone     String             @default("Asia/Kolkata")
+  originalReleaseDate DateTime?
+  upcEan              String?            @unique
+  
+  // Territory
+  territoryType       String             @default("WORLDWIDE") // WORLDWIDE or RESTRICTED
+  selectedTerritories String?            @db.Text // JSON array of country codes
+  
+  // Media Assets
+  artworkUrl          String?
+  artworkResolution   String?            @default("3000x3000")
+  artworkChecksum     String?
+  
+  // Rights & Legal
+  pLineYear           Int?               @default(2026)
+  pLineText           String?            // Sound recording copyright e.g. "DigiTube Network"
+  cLineYear           Int?               @default(2026)
+  cLineText           String?            // Artwork/Packaging copyright
+  workType            String             @default("ORIGINAL") // ORIGINAL, COVER, REMIX, SAMPLE
+  hasContentIdOptIn   Boolean            @default(false)
+  rightsDeclaration   Boolean            @default(true)
+  
+  // Reviewer / Quality Notes
+  reviewNotes         String?            @db.Text
+  reviewerId          String?
+  approvedAt          DateTime?
+
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  // Relations
+  organization        Organization?      @relation(fields: [organizationId], references: [id])
+  artistProfile       ArtistProfile      @relation(fields: [artistProfileId], references: [id], onDelete: Cascade)
+  tracks              Track[]
+  dspDeliveries       DspDeliveryStatus[]
+  royaltyLines        RoyaltyLine[]
+  splits              RoyaltySplit[]
+  smartLinks          SmartLink[]
+
+  @@map("releases")
+}
+
+model Track {
+  id                String        @id @default(cuid())
+  releaseId         String
+  trackNumber       Int           @default(1)
+  discNumber        Int           @default(1)
+  title             String
+  versionSubtitle   String?
+  isrcCode          String?       @unique
+  durationSeconds   Int           @default(0)
+  
+  // Audio File
+  audioMasterUrl    String?
+  audioFormat       String?       @default("WAV")
+  audioBitrate      String?       @default("24-bit / 48kHz")
+  audioChecksum     String?
+  
+  // Flags & Metadata
+  isExplicit        Boolean       @default(false)
+  isInstrumental    Boolean       @default(false)
+  language          String        @default("Hindi")
+  bpm               Int?
+  musicalKey        String?
+  previewStartTime  Int?          @default(30) // seconds
+  lyrics            String?       @db.Text
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  release           Release       @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  credits           TrackCredit[]
+  royaltyLines      RoyaltyLine[]
+
+  @@map("tracks")
+}
+
+enum ContributorRole {
+  MAIN_ARTIST
+  FEATURED_ARTIST
+  COMPOSER
+  LYRICIST
+  PRODUCER
+  PERFORMER
+  ARRANGER
+  REMIXER
+  MIXING_ENGINEER
+  MASTERING_ENGINEER
+}
+
+model TrackCredit {
+  id              String          @id @default(cuid())
+  trackId         String
+  artistProfileId String?
+  fullName        String
+  role            ContributorRole
+  ipiCode         String?
+  isniCode        String?
+
+  track           Track           @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  artistProfile   ArtistProfile?  @relation(fields: [artistProfileId], references: [id])
+
+  @@map("track_credits")
+}
+
+// -------------------------------------------------------------
+// 5. DSP Distribution Partner & Delivery Statuses
+// -------------------------------------------------------------
+
+enum DspStore {
+  SPOTIFY
+  APPLE_MUSIC
+  YOUTUBE_MUSIC
+  AMAZON_MUSIC
+  JIOSAAVN
+  WYNK
+  INSTAGRAM_FACEBOOK
+  TIKTOK
+  DEEZER
+  TIDAL
+  PANDORA
+}
+
+enum DspDeliveryState {
+  PENDING
+  SUBMITTED
+  PROCESSING
+  LIVE
+  REJECTED
+  TAKEDOWN_REQUESTED
+  TAKEDOWN_CONFIRMED
+}
+
+model DspDeliveryStatus {
+  id              String            @id @default(cuid())
+  releaseId       String
+  store           DspStore
+  status          DspDeliveryState  @default(PENDING)
+  storeReleaseUrl String?
+  storeExternalId String?
+  errorMessage    String?
+  deliveredAt     DateTime?
+  liveAt          DateTime?
+  updatedAt       DateTime          @updatedAt
+
+  release         Release           @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+
+  @@unique([releaseId, store])
+  @@map("dsp_delivery_statuses")
+}
+
+// -------------------------------------------------------------
+// 6. Royalties, Ledger & Accounting Engine
+// -------------------------------------------------------------
+
+model RoyaltySplit {
+  id              String         @id @default(cuid())
+  releaseId       String
+  artistProfileId String?
+  payeeName       String
+  payeeEmail      String
+  percentageShare Float          // e.g. 85.0 for 85%
+  isAccepted      Boolean        @default(false)
+  acceptedAt      DateTime?
+
+  release         Release        @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  artistProfile   ArtistProfile? @relation(fields: [artistProfileId], references: [id])
+
+  @@map("royalty_splits")
+}
+
+enum StatementStatus {
+  IMPORTED
+  RECONCILING
+  RECONCILED
+  PUBLISHED
+  CANCELLED
+}
+
+model RoyaltyImport {
+  id              String          @id @default(cuid())
+  batchCode       String          @unique // e.g. STMT-2026-SEP
+  sourceProvider  String          @default("Revelator")
+  statementPeriod String          // e.g. "2026-09"
+  totalGrossInr   Float           @default(0)
+  totalNetInr     Float           @default(0)
+  totalStreams    BigInt          @default(0)
+  status          StatementStatus @default(PUBLISHED)
+  fileChecksum    String?
+  importedAt      DateTime        @default(now())
+
+  lines           RoyaltyLine[]
+  ledgerEntries   LedgerEntry[]
+
+  @@map("royalty_imports")
+}
+
+model RoyaltyLine {
+  id              String         @id @default(cuid())
+  importId        String
+  releaseId       String?
+  trackId         String?
+  isrc            String
+  upc             String?
+  store           DspStore
+  countryCode     String         @default("IN")
+  streamCount     Int            @default(0)
+  grossAmount     Float
+  commissionAmount Float         // DigiTube cut (e.g. 15%)
+  netArtistShare  Float          // 85%
+  currency        String         @default("INR")
+  reportingMonth  String         // e.g. "2026-09"
+
+  royaltyImport   RoyaltyImport  @relation(fields: [importId], references: [id], onDelete: Cascade)
+  release         Release?       @relation(fields: [releaseId], references: [id])
+  track           Track?         @relation(fields: [trackId], references: [id])
+
+  @@map("royalty_lines")
+}
+
+enum LedgerEntryType {
+  ROYALTY_CREDIT
+  COMMISSION_DEDUCTION
+  PAYOUT_RESERVATION
+  PAYOUT_SETTLEMENT
+  PAYOUT_REVERSAL
+  MANUAL_ADJUSTMENT
+}
+
+model LedgerEntry {
+  id              String          @id @default(cuid())
+  walletAccountId String
+  importId        String?
+  entryType       LedgerEntryType
+  amount          Float
+  balanceAfter    Float
+  currency        String          @default("INR")
+  description     String
+  referenceCode   String?
+  createdAt       DateTime        @default(now())
+
+  walletAccount   WalletAccount   @relation(fields: [walletAccountId], references: [id], onDelete: Cascade)
+  royaltyImport   RoyaltyImport?  @relation(fields: [importId], references: [id])
+
+  @@map("ledger_entries")
+}
+
+// -------------------------------------------------------------
+// 7. Wallet & Payout System
+// -------------------------------------------------------------
+
+model WalletAccount {
+  id               String          @id @default(cuid())
+  userId           String          @unique
+  currency         String          @default("INR")
+  availableBalance Float           @default(0)
+  pendingBalance   Float           @default(0)
+  heldBalance      Float           @default(0)
+  lifetimeEarnings Float           @default(0)
+  withdrawnTotal   Float           @default(0)
+  
+  // Bank / Payee Details (Masked in frontend)
+  bankAccountName  String?
+  bankAccountNumber String?
+  bankIfscSwift    String?
+  bankName         String?
+  upiId            String?
+  panTaxId         String?
+  updatedAt        DateTime        @updatedAt
+
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ledgerEntries    LedgerEntry[]
+  payoutRequests   PayoutRequest[]
+
+  @@map("wallet_accounts")
+}
+
+enum PayoutStatus {
+  PENDING_REVIEW
+  APPROVED
+  IN_TRANSIT
+  SETTLED
+  REJECTED
+  REVERSED
+}
+
+model PayoutRequest {
+  id              String          @id @default(cuid())
+  userId          String
+  walletAccountId String
+  amount          Float
+  currency        String          @default("INR")
+  status          PayoutStatus    @default(PENDING_REVIEW)
+  paymentMethod   String          @default("BANK_NEFT_RTGS")
+  transactionRef  String?
+  reviewerNote    String?
+  reviewedBy      String?
+  settledAt       DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletAccount   WalletAccount   @relation(fields: [walletAccountId], references: [id], onDelete: Cascade)
+
+  @@map("payout_requests")
+}
+
+// -------------------------------------------------------------
+// 8. Smart Links & Marketing
+// -------------------------------------------------------------
+
+model SmartLink {
+  id            String    @id @default(cuid())
+  releaseId     String
+  slug          String    @unique // e.g. "arijit-khuda-remix"
+  spotifyUrl    String?
+  appleMusicUrl String?
+  youtubeUrl    String?
+  amazonUrl     String?
+  jiosaavnUrl   String?
+  clickCount    Int       @default(0)
+  createdAt     DateTime  @default(now())
+
+  release       Release   @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+
+  @@map("smart_links")
+}
+
+// -------------------------------------------------------------
+// 9. Support Tickets & Helpdesk
+// -------------------------------------------------------------
+
+enum TicketStatus {
+  NEW
+  TRIAGED
+  IN_PROGRESS
+  WAITING_ON_ARTIST
+  RESOLVED
+  CLOSED
+}
+
+enum TicketCategory {
+  RELEASE_REJECTION
+  METADATA_CORRECTION
+  STORE_TAKEDOWN
+  COPYRIGHT_DISPUTE
+  ROYALTY_INQUIRY
+  PAYOUT_HELP
+  TECHNICAL_ERROR
+}
+
+model Ticket {
+  id            String          @id @default(cuid())
+  ticketNumber  String          @unique // e.g. TKT-8941
+  userId        String
+  assignedToId  String?
+  title         String
+  category      TicketCategory
+  status        TicketStatus    @default(NEW)
+  priority      String          @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  createdBy     User            @relation("TicketCreator", fields: [userId], references: [id], onDelete: Cascade)
+  assignedTo    User?           @relation("TicketAssignee", fields: [assignedToId], references: [id])
+  messages      TicketMessage[]
+
+  @@map("tickets")
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  userId    String
+  content   String   @db.Text
+  isStaff   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ticket_messages")
+}
+
+// -------------------------------------------------------------
+// 10. Audit Logs & System Compliance
+// -------------------------------------------------------------
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   // e.g. "RELEASE_APPROVED", "PAYOUT_EXECUTED", "ROLE_UPDATED"
+  resource   String   // e.g. "release:DGT-2026-9812"
+  reason     String?
+  diff       String?  @db.Text // JSON diff of before/after
+  ipAddress  String?  @default("127.0.0.1")
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model Contract {
+  id              String        @id @default(cuid())
+  organizationId  String?
+  contractCode    String        @unique // e.g. AGR-2026-IND-01
+  title           String        @default("DigiTube Standard Music Distribution Agreement")
+  commissionRate  Float         @default(15.0) // 15% DigiTube commission
+  effectiveDate   DateTime      @default(now())
+  termsVersion    String        @default("v1.4")
+  digitalSignedAt DateTime?
+  signedByIp      String?
+
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+
+  @@map("contracts")
+}
