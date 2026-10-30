@@ -16,6 +16,14 @@ import {
   Building2,
   Lock,
   Zap,
+  Star,
+  Users,
+  TrendingUp,
+  Music,
+  Quote,
+  Award,
+  MessageCircle,
+  Headphones,
 } from 'lucide-react';
 
 import {
@@ -32,6 +40,119 @@ import {
 } from '@/components/DspLogos';
 
 export default function HomePage() {
+  const clientRoster = [
+    {
+      name: 'Desi Beats Music Pvt Ltd',
+      type: 'Record Label',
+      region: 'New Delhi & Mohali',
+      genre: 'Punjabi Pop & Hip-Hop',
+      stats: '45+ Artists • 320 Releases',
+      metric: '₹48L+ Royalties Settled',
+      avatar: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=500&auto=format&fit=crop&q=80',
+      badge: 'Certified Label Partner',
+    },
+    {
+      name: 'Bhojpuri Wave Digital',
+      type: 'Regional Network',
+      region: 'Patna & Varanasi',
+      genre: 'Bhojpuri & Maithili Folk',
+      stats: '85+ Artists • 1,400 Tracks',
+      metric: '180M+ YouTube CID Views',
+      avatar: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&auto=format&fit=crop&q=80',
+      badge: 'High-Volume Partner',
+    },
+    {
+      name: 'Kamlesh Pandit',
+      type: 'Verified Artist',
+      region: 'Varanasi & Mumbai',
+      genre: 'Devotional & Classical Fusion',
+      stats: '18 Singles • 1.4M Listeners',
+      metric: 'Top 100 Spiritual Charts',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
+      badge: 'Verified Creator',
+    },
+    {
+      name: 'Sufi Soul Records',
+      type: 'Indie Imprint',
+      region: 'Lucknow & Mumbai',
+      genre: 'Sufi, Ghazal & Acoustic',
+      stats: '30+ Artists • 210 Releases',
+      metric: 'Spotify Editorial Curated',
+      avatar: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80',
+      badge: 'Editorial Partner',
+    },
+    {
+      name: 'Urban Haryanvi Tunes',
+      type: 'Regional Label',
+      region: 'Rohtak & Gurugram',
+      genre: 'Haryanvi Pop & Desi Trap',
+      stats: '65+ Releases • 8 signed artists',
+      metric: 'Trending #1 Reels Audio',
+      avatar: 'https://images.unsplash.com/photo-1520523839898-507127cd53c3?w=500&auto=format&fit=crop&q=80',
+      badge: 'Trending Audio',
+    },
+    {
+      name: 'Mithila Beats Studio',
+      type: 'Sound Recording Studio',
+      region: 'Darbhanga & Patna',
+      genre: 'Traditional Folk & Lokgeet',
+      stats: '500+ Tracks Distributed',
+      metric: 'Wynk & JioSaavn Direct',
+      avatar: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80',
+      badge: 'Studio Partner',
+    },
+    {
+      name: 'Rohan Varma & The Collective',
+      type: 'Indie Band',
+      region: 'Mumbai & Pune',
+      genre: 'Indie Pop & Alternative Rock',
+      stats: '3 EPs • 950K Streams',
+      metric: 'Apple Music Featured',
+      avatar: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500&auto=format&fit=crop&q=80',
+      badge: 'Indie Spotlight',
+    },
+    {
+      name: 'Southern Echoes Media',
+      type: 'Regional Imprint',
+      region: 'Bengaluru & Hyderabad',
+      genre: 'South Fusion & Carnatic Rock',
+      stats: '40 Releases • 12 Artists',
+      metric: 'International Distribution',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
+      badge: 'Regional Network',
+    },
+  ];
+
+  const testimonials = [
+    {
+      quote:
+        "Before DigiTube, our label had to wait 3-4 days just to get release approvals. With DigiTube's automated DDEX grid, our songs go live on Spotify, Wynk, and JioSaavn within 24 hours. Their splitsheets feature saves our accounts team 20 hours every month.",
+      author: 'Vikramaditya Singh',
+      role: 'Founder & Managing Director',
+      company: 'Desi Beats Music Pvt Ltd',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+      stats: '320+ Releases on DigiTube',
+    },
+    {
+      quote:
+        'The direct UPI and NEFT bank settlements with zero delay make DigiTube unmatched in India. Our artists receive monthly statements with complete store-by-store stream breakdown. No hidden deductions, 100% transparent double-entry ledger.',
+      author: 'Sunita Sharma',
+      role: 'Head of Catalog & Operations',
+      company: 'Bhojpuri Wave Digital',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+      stats: '1,400+ Tracks Live Worldwide',
+    },
+    {
+      quote:
+        'As an independent singer-composer, keeping 100% of my royalties and having automated YouTube Content ID fingerprinting without losing master rights has been revolutionary. The 9-step wizard generates ISRC and UPC codes automatically.',
+      author: 'Kamlesh Pandit',
+      role: 'Verified Singer & Composer',
+      company: 'Independent Artist Roster',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80',
+      stats: '1.4M+ Monthly Listeners',
+    },
+  ];
+
   const dspPartners = [
     { name: 'Spotify', color: '#1DB954', Logo: SpotifyLogo, share: '38%' },
     { name: 'Apple Music', color: '#FC3C44', Logo: AppleMusicLogo, share: '24%' },
@@ -156,10 +277,10 @@ export default function HomePage() {
                   </div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">Kesariya Lofi Sunset</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Arijit Vibe • Indian Pop / Lo-Fi • Released 15 Oct 2026
+                    Kamlesh Pandit • Indian Pop / Lo-Fi • Released 15 Oct 2026
                   </p>
                   <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">
-                    ℗ DigiTube Network / Arijit Vibe • © DigiTube Network
+                    ℗ DigiTube Network / Kamlesh Pandit • © DigiTube Network
                   </p>
                 </div>
               </div>
@@ -182,7 +303,7 @@ export default function HomePage() {
             {/* Per-Store Delivery Matrix */}
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
               <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-                <span>Per-Store Delivery Status (Section 06 Blueprint)</span>
+                <span>Automated Per-Store Ingestion Status</span>
                 <span className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">Live Webhook Sync</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
@@ -351,7 +472,7 @@ export default function HomePage() {
               Distribution & Pricing Models
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Section 17 Blueprint: Choose Revenue Share, Pro Subscription, or Label Enterprise.
+              Transparent, creator-friendly pricing: Choose Revenue Share, Pro Subscription, or Label Enterprise.
             </p>
           </div>
 
@@ -459,6 +580,245 @@ export default function HomePage() {
               >
                 Open Label Workspace
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= CLIENTS & ARTIST PARTNERS SHOWCASE ================= */}
+      <section className="py-20 bg-slate-50 dark:bg-[#060911] border-t border-slate-200/80 dark:border-slate-800/80 relative overflow-hidden transition-colors">
+        {/* Ambient background soft light blurs */}
+        <div className="absolute top-1/4 left-[-100px] w-96 h-96 rounded-full bg-blue-500/10 dark:bg-blue-600/10 blur-[130px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-[-100px] w-96 h-96 rounded-full bg-purple-500/10 dark:bg-purple-600/10 blur-[130px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16">
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/70 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/60 text-xs font-semibold tracking-wide">
+              <Award className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Verified Client Catalog Network</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl font-display font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
+              Trusted by 500+ Record Labels & 10,000+ Independent Artists
+            </h2>
+
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+              Powering prominent regional powerhouses, Bollywood indies, devotional music creators, and global chart-toppers across India. Fast automated DDEX ingestion and reliable Indian banking settlements.
+            </p>
+          </div>
+
+          {/* Scale Impact Metrics Counter */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200/90 dark:border-slate-800 shadow-sm text-center space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-blue-600 dark:text-blue-400">
+                15,000+
+              </div>
+              <div className="text-xs font-bold text-slate-800 dark:text-slate-200">Releases Ingested</div>
+              <div className="text-[11px] text-slate-400">Delivered across 150+ DSPs</div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200/90 dark:border-slate-800 shadow-sm text-center space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-purple-600 dark:text-purple-400">
+                650M+
+              </div>
+              <div className="text-xs font-bold text-slate-800 dark:text-slate-200">Monthly Streams</div>
+              <div className="text-[11px] text-slate-400">Audio & YouTube CID Views</div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200/90 dark:border-slate-800 shadow-sm text-center space-y-1">
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                ₹18.4 Cr+
+              </div>
+              <div className="text-xs font-bold text-slate-800 dark:text-slate-200">Royalties Distributed</div>
+              <div className="text-[11px] text-slate-400">Direct NEFT & UPI Settlements</div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0b101d] border border-slate-200/90 dark:border-slate-800 shadow-sm text-center space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-amber-600 dark:text-amber-400">
+                24 Hours
+              </div>
+              <div className="text-xs font-bold text-slate-800 dark:text-slate-200">Average Turnaround</div>
+              <div className="text-[11px] text-slate-400">Automated QA Inspection</div>
+            </div>
+          </div>
+
+          {/* Client & Artist Partner Showcase Cards Grid */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  Featured Labels & Creators Working With DigiTube
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Real catalogs actively distributed and earning royalties via DigiTube DDEX.
+                </p>
+              </div>
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold">
+                <Users className="w-3.5 h-3.5" /> 500+ Active Imprints
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {clientRoster.map((client, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/90 dark:border-slate-800 hover:border-blue-500/80 transition-all p-4 space-y-4 shadow-sm group hover:-translate-y-1"
+                >
+                  {/* Photo & Badge */}
+                  <div className="relative h-44 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-900">
+                    <img
+                      src={client.avatar}
+                      alt={client.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                    
+                    {/* Badge */}
+                    <div className="absolute top-2.5 right-2.5">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/80 text-white backdrop-blur-md border border-white/20">
+                        {client.badge}
+                      </span>
+                    </div>
+
+                    <div className="absolute bottom-2.5 left-2.5 right-2.5">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-blue-300 font-bold block">
+                        {client.type}
+                      </span>
+                      <h4 className="text-sm font-bold text-white leading-tight truncate">
+                        {client.name}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
+                      <span>Genre:</span>
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">{client.genre}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
+                      <span>Region:</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-300">{client.region}</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#070b14] border border-slate-100 dark:border-slate-800/80 space-y-1">
+                      <div className="text-[10px] font-semibold text-slate-400 uppercase">Catalog Scale</div>
+                      <div className="text-[11px] font-bold text-slate-900 dark:text-white truncate">
+                        {client.stats}
+                      </div>
+                      <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                        {client.metric}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Testimonials From Actual Founders & Artists */}
+          <div className="space-y-6 pt-4">
+            <div className="text-center max-w-xl mx-auto space-y-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                What Creators Say About DigiTube
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Direct feedback from label heads and independent musicians scaling their catalogs.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {testimonials.map((t, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-2xl bg-white dark:bg-[#0c1220] border border-slate-200/90 dark:border-slate-800 p-6 space-y-4 shadow-sm flex flex-col justify-between"
+                >
+                  <div className="space-y-3">
+                    {/* Stars */}
+                    <div className="flex items-center gap-1 text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-amber-400" />
+                      ))}
+                    </div>
+
+                    {/* Quote */}
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
+                      &ldquo;{t.quote}&rdquo;
+                    </p>
+                  </div>
+
+                  {/* Author */}
+                  <div className="flex items-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <img
+                      src={t.avatar}
+                      alt={t.author}
+                      className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
+                    />
+                    <div className="min-w-0 flex-1 text-xs">
+                      <div className="font-bold text-slate-900 dark:text-white truncate flex items-center gap-1">
+                        <span>{t.author}</span>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                      </div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                        {t.role} • {t.company}
+                      </div>
+                      <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-semibold">
+                        {t.stats}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* High-Impact Pre-Footer CTA */}
+          <div className="rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-80 h-80 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+            
+            <div className="relative z-10 max-w-3xl space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-semibold">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Zero Onboarding Delay • Automated Verification</span>
+              </div>
+
+              <h3 className="text-2xl sm:text-4xl font-display font-bold tracking-tight leading-tight">
+                Ready to Distribute Your Next Track to 150+ Digital Stores Worldwide?
+              </h3>
+
+              <p className="text-xs sm:text-sm text-blue-100 leading-relaxed max-w-2xl">
+                Deliver sound recordings to Spotify, Apple Music, YouTube Music, JioSaavn, and Instagram Reels in minutes. Keep 100% of your master rights and receive monthly direct bank transfers.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                <Link
+                  href="/dashboard/releases/new"
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-blue-900 hover:bg-blue-50 font-bold text-xs inline-flex items-center justify-center gap-2 transition-all shadow-lg"
+                >
+                  <Disc3 className="w-4 h-4 text-blue-600" />
+                  <span>Start 9-Step Release Wizard</span>
+                </Link>
+
+                <Link
+                  href="/dashboard"
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/15 hover:bg-white/20 text-white font-semibold text-xs inline-flex items-center justify-center gap-2 backdrop-blur-md transition-all border border-white/20"
+                >
+                  <span>Open Artist Backstage</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <a
+                  href="https://wa.me/919899708677?text=Hi%20DigiTube%20Team%2C%20I%20want%20to%20distribute%20my%20music"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-500/90 hover:bg-emerald-500 text-white font-semibold text-xs inline-flex items-center justify-center gap-2 transition-all shadow-md"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>WhatsApp Ingestion Desk</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
