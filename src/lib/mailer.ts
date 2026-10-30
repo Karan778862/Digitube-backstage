@@ -42,7 +42,7 @@ export async function sendOtpEmail({ to, otp, fullName }: SendOtpEmailParams) {
             This verification code is valid for <strong>10 minutes</strong>. If you did not request this verification code, please ignore this email.
           </p>
           <div class="footer">
-            DigiTube Network • Enterprise Music Distribution & Royalties • Believe Architecture
+            DigiTube Network • Enterprise Music Distribution & Royalties
           </div>
         </div>
       </body>

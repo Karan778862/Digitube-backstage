@@ -56,7 +56,7 @@ export default function HomePage() {
             {/* Pill */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/60 text-xs font-semibold tracking-wide">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-              <span>DigiTube Network • Enterprise Believe Architecture</span>
+              <span>DigiTube Network • Enterprise DDEX Distribution Grid</span>
             </div>
 
             {/* Headline */}

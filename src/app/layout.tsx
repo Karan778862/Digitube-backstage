@@ -5,7 +5,7 @@ import { ThemeProvider } from '@/lib/theme';
 import { AudioPlayerModal } from '@/components/AudioPlayerModal';
 
 export const metadata: Metadata = {
-  title: 'DigiTube Network | Music Distribution & Backstage Portal (Believe Architecture)',
+  title: 'DigiTube Network | Music Distribution & Backstage Portal',
   description:
     'Distribute music to 150+ stores worldwide including Spotify, Apple Music, YouTube Music, and JioSaavn. 9-step release wizard, automated QA, royalty ledger, and instant bank settlements.',
 };
