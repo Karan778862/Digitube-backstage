@@ -88,7 +88,7 @@ export default function HomePage() {
       genre: 'Haryanvi Pop & Desi Trap',
       stats: '65+ Releases • 8 signed artists',
       metric: 'Trending #1 Reels Audio',
-      avatar: 'https://images.unsplash.com/photo-1520523839898-507127cd53c3?w=500&auto=format&fit=crop&q=80',
+      avatar: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=80',
       badge: 'Trending Audio',
     },
     {
