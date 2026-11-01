@@ -15,6 +15,7 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  AlertTriangle,
 } from 'lucide-react';
 
 export default function DashboardOverviewPage() {
@@ -25,9 +26,33 @@ export default function DashboardOverviewPage() {
   const inReviewReleases = releases.filter(
     (r) => r.status === 'IN_REVIEW' || r.status === 'VALIDATION' || r.status === 'SUBMITTED'
   ).length;
+  const changesRequired = releases.filter((r) => r.status === 'CHANGES_REQUIRED');
 
   return (
     <div className="space-y-6 animate-fade-in font-sans">
+      {/* Urgent QA Notification Banner */}
+      {changesRequired.length > 0 && (
+        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-slate-900 dark:text-white">
+                Action Required: Super Admin requested corrections for {changesRequired.length} release(s)
+              </div>
+              <p className="text-slate-700 dark:text-slate-300 mt-0.5 font-medium">
+                "{changesRequired[0].title}": {changesRequired[0].reviewNotes || 'Please review required fixes before distribution.'}
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/dashboard/releases"
+            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-sm transition-colors shrink-0 self-start sm:self-auto"
+          >
+            Review & Fix Now &rarr;
+          </Link>
+        </div>
+      )}
+
       {/* ================= TOP ROW: 3 METRIC CARDS ================= */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Card 1: Active Projects / Catalog Releases */}

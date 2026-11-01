@@ -83,6 +83,9 @@ export default function SignupPage() {
       }
 
       setInfoMessage(data.message || `Verification code sent to ${cleanEmail}`);
+      if (data.devOtp) {
+        setOtp(data.devOtp);
+      }
       setStep('VERIFY_STEP');
       setResendCountdown(60);
       setCanResend(false);

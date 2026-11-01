@@ -25,6 +25,10 @@ export const AudioPlayerModal: React.FC = () => {
     if (!rawUrl || rawUrl.trim() === '' || rawUrl.includes('actions.google.com')) {
       return RELIABLE_CDN_STREAM;
     }
+    // If running in /admin, any blob URL from another tab is inaccessible; use reliable CDN stream
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin') && rawUrl.startsWith('blob:')) {
+      return RELIABLE_CDN_STREAM;
+    }
     return rawUrl;
   };
 

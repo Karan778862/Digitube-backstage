@@ -696,7 +696,9 @@ export default function NewReleaseWizardPage() {
       tracks: newRelease.tracks.map((t, idx) => ({
         ...t,
         audioMasterUrl:
-          !t.audioMasterUrl || t.audioMasterUrl.includes('actions.google.com')
+          !t.audioMasterUrl ||
+          t.audioMasterUrl.includes('actions.google.com') ||
+          t.audioMasterUrl.startsWith('blob:')
             ? `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(idx % 4) + 1}.mp3`
             : t.audioMasterUrl,
       })),
@@ -1310,6 +1312,25 @@ export default function NewReleaseWizardPage() {
                             className="hidden"
                           />
                         </label>
+
+                        {trk.audioMasterUrl && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              playAudioTrack(
+                                trk,
+                                trk.title || title || `Track ${idx + 1}`,
+                                primaryArtist || 'Artist',
+                                artworkUrl
+                              )
+                            }
+                            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all shrink-0"
+                            title="Listen to uploaded audio"
+                          >
+                            <Play className="w-3.5 h-3.5 fill-white" />
+                            <span>Listen Track</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

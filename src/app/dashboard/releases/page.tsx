@@ -186,15 +186,32 @@ export default function ReleasesCatalogPage() {
                 </div>
 
                 {rel.status === 'CHANGES_REQUIRED' && rel.reviewNotes && (
-                  <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-xs text-rose-800 dark:text-rose-300 flex items-start gap-2.5">
-                    <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-bold">Compliance Feedback:</span> {rel.reviewNotes}
-                      <div className="mt-0.5">
-                        <Link href="/dashboard/support" className="font-bold underline hover:text-rose-600">
-                          Reply to Staff via Support Desk &rarr;
-                        </Link>
+                  <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-500/50 text-xs text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span>Super Admin QA Feedback (Action Required):</span>
+                        </div>
+                        <p className="mt-1 text-slate-800 dark:text-slate-200 whitespace-pre-line font-medium">
+                          {rel.reviewNotes}
+                        </p>
                       </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                      <Link
+                        href={`/dashboard/support?subject=Correction for ${rel.releaseCode}`}
+                        className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-300 font-bold text-[11px] hover:bg-amber-100 transition-colors"
+                      >
+                        Reply via Support
+                      </Link>
+                      <Link
+                        href="/dashboard/releases/new"
+                        className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-[11px] shadow-sm transition-colors"
+                      >
+                        Edit / Resubmit
+                      </Link>
                     </div>
                   </div>
                 )}
@@ -261,6 +278,16 @@ export default function ReleasesCatalogPage() {
                 ))}
               </div>
             </div>
+
+            {selectedRelease.reviewNotes && (
+              <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-xs text-amber-900 dark:text-amber-200 space-y-1">
+                <span className="font-bold flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
+                  <AlertTriangle className="w-4 h-4" />
+                  Staff Review & Compliance Feedback:
+                </span>
+                <p className="whitespace-pre-line pl-5 font-medium">{selectedRelease.reviewNotes}</p>
+              </div>
+            )}
 
             <div className="pt-2 flex justify-end">
               <button

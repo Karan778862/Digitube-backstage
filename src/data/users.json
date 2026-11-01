@@ -1,5 +1,22 @@
 [
   {
+    "id": "usr_1793542096748_308",
+    "email": "realartist_1793542092322@digitubenetwork.com",
+    "passwordHash": "$2b$10$JtlaxzH2u.wY4ms/0t47zuhhv9B1OecZcAPJmk1ypmLD1O55dBWqq",
+    "fullName": "Aarav Sharma",
+    "stageName": "Aarav Beats",
+    "mobile": "+91 9876543210",
+    "role": "ARTIST",
+    "country": "India",
+    "countryCode": "+91",
+    "verificationStatus": "ACTIVE",
+    "mfaEnabled": false,
+    "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+    "isDemo": false,
+    "createdAt": "2026-11-01T14:08:16.748Z",
+    "updatedAt": "2026-11-01T14:08:16.748Z"
+  },
+  {
     "id": "usr_karan_001",
     "email": "karanmaximiseteck@gmail.com",
     "passwordHash": "$2b$10$yBWqtYS0JrckEk1FV76CVecqn96.4wjKGTj5or9yQ3uhLRflDAMie",

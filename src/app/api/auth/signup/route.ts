@@ -3,6 +3,8 @@ import { getDatabase } from '@/lib/mongodb';
 import { verifyStoredOtp, findUserByEmail, saveUser } from '@/lib/authStore';
 import bcrypt from 'bcryptjs';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const {

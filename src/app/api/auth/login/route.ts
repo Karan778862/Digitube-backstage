@@ -3,6 +3,8 @@ import { getDatabase } from '@/lib/mongodb';
 import { findUserByEmail } from '@/lib/authStore';
 import bcrypt from 'bcryptjs';
 
+export const dynamic = 'force-dynamic';
+
 // In-Memory Brute-Force Rate Limiting Guard
 interface AttemptRecord {
   count: number;
