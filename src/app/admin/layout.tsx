@@ -137,7 +137,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="font-bold">DigiTube Privileged Operations</span>
             <span className="text-slate-300 dark:text-slate-600">•</span>
             <span className="text-slate-600 dark:text-slate-400 font-mono text-[11px]">
-              Logged in: <strong className="text-slate-900 dark:text-white">{currentUser.fullName}</strong> ({userRole.replace(/_/g, ' ')})
+              Logged in: <strong className="text-slate-900 dark:text-white">{currentUser?.fullName || currentUser?.stageName || 'Staff Member'}</strong> ({(userRole || '').replace(/_/g, ' ')})
             </span>
           </div>
 
@@ -186,7 +186,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-left text-xs font-mono space-y-1">
                 <div className="text-slate-400 text-[11px]">Security Enforcement:</div>
                 <div className="text-slate-600 dark:text-slate-300">• Path: {pathname}</div>
-                <div className="text-slate-600 dark:text-slate-300">• Account: {currentUser.email}</div>
+                <div className="text-slate-600 dark:text-slate-300">• Account: {currentUser?.email || 'N/A'}</div>
                 <div className="text-emerald-600 dark:text-emerald-400">• Security Guard: Active & Logged</div>
               </div>
 

@@ -199,23 +199,29 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
       fetch(endpoint, { cache: 'no-store' })
         .then((res) => res.json())
         .then((data) => {
-          let list = Array.isArray(data?.releases) ? data.releases : [];
+          let list = Array.isArray(data?.releases) ? data.releases.filter(Boolean) : [];
           try {
             const local = JSON.parse(localStorage.getItem('digitube_all_submitted_releases') || '[]');
             if (Array.isArray(local) && local.length > 0) {
-              const map = new Map(list.map((r: any) => [r.id, r]));
+              const map = new Map(list.filter((r: any) => r && r.id).map((r: any) => [r.id, r]));
               for (const item of local) {
-                if (isAdminRole || (item.artistId && item.artistId.toLowerCase() === user.email.toLowerCase())) {
-                  if (!map.has(item.id)) {
-                    list.unshift(item);
-                    map.set(item.id, item);
+                if (item && item.id) {
+                  const matchArtist =
+                    item.artistId &&
+                    user?.email &&
+                    item.artistId.toLowerCase() === user.email.toLowerCase();
+                  if (isAdminRole || matchArtist) {
+                    if (!map.has(item.id)) {
+                      list.unshift(item);
+                      map.set(item.id, item);
+                    }
                   }
                 }
               }
             }
           } catch {}
           if (list.length > 0) {
-            setReleases(list);
+            setReleases(list.filter(Boolean));
           }
         })
         .catch(() => {});
@@ -319,20 +325,20 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
       fetch('/api/releases?all=true', { cache: 'no-store' })
         .then((res) => res.json())
         .then((data) => {
-          let list = Array.isArray(data?.releases) ? data.releases : [];
+          let list = Array.isArray(data?.releases) ? data.releases.filter(Boolean) : [];
           try {
             const local = JSON.parse(localStorage.getItem('digitube_all_submitted_releases') || '[]');
             if (Array.isArray(local) && local.length > 0) {
-              const map = new Map(list.map((r: any) => [r.id, r]));
+              const map = new Map(list.filter((r: any) => r && r.id).map((r: any) => [r.id, r]));
               for (const item of local) {
-                if (!map.has(item.id)) {
+                if (item && item.id && !map.has(item.id)) {
                   list.unshift(item);
                   map.set(item.id, item);
                 }
               }
             }
           } catch {}
-          if (list.length > 0) setReleases(list);
+          if (list.length > 0) setReleases(list.filter(Boolean));
         })
         .catch(() => {});
     } else if (role === 'RECORD_LABEL') {

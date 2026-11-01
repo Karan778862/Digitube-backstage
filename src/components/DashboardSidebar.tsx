@@ -39,10 +39,13 @@ export const DashboardSidebar: React.FC = () => {
   const pathname = usePathname();
   const { releases, wallet, tickets, currentUser } = useDigiTube();
 
-  const pendingReleasesCount = releases.filter(
-    (r) => r.status === 'IN_REVIEW' || r.status === 'CHANGES_REQUIRED'
+  const safeReleases = Array.isArray(releases) ? releases.filter(Boolean) : [];
+  const safeTickets = Array.isArray(tickets) ? tickets.filter(Boolean) : [];
+
+  const pendingReleasesCount = safeReleases.filter(
+    (r) => r?.status === 'IN_REVIEW' || r?.status === 'CHANGES_REQUIRED'
   ).length;
-  const openTicketsCount = tickets.filter((t) => t.status !== 'CLOSED' && t.status !== 'RESOLVED').length;
+  const openTicketsCount = safeTickets.filter((t) => t?.status !== 'CLOSED' && t?.status !== 'RESOLVED').length;
 
   const navItems: NavSection[] = [
     {
@@ -59,7 +62,7 @@ export const DashboardSidebar: React.FC = () => {
           href: '/dashboard/releases',
           label: 'My Catalog',
           icon: Disc3,
-          badge: releases.length,
+          badge: safeReleases.length,
           alert: pendingReleasesCount > 0,
         },
       ],
@@ -73,7 +76,10 @@ export const DashboardSidebar: React.FC = () => {
           href: '/dashboard/wallet',
           label: 'Wallet & Payouts',
           icon: Wallet,
-          badge: wallet.availableBalance > 0 ? `₹${Math.round(wallet.availableBalance / 1000)}k` : undefined,
+          badge:
+            (wallet?.availableBalance || 0) > 0
+              ? `₹${Math.round((wallet?.availableBalance || 0) / 1000)}k`
+              : undefined,
         },
       ],
     },
@@ -103,11 +109,12 @@ export const DashboardSidebar: React.FC = () => {
     },
   ];
 
+  const userRole = currentUser?.role || 'GUEST';
   const isStaff =
-    currentUser.role === 'SUPER_ADMIN' ||
-    currentUser.role === 'RELEASE_MANAGER' ||
-    currentUser.role === 'ACCOUNTS_STAFF' ||
-    currentUser.role === 'CATALOG_STAFF';
+    userRole === 'SUPER_ADMIN' ||
+    userRole === 'RELEASE_MANAGER' ||
+    userRole === 'ACCOUNTS_STAFF' ||
+    userRole === 'CATALOG_STAFF';
 
   return (
     <aside className="w-64 bg-slate-50/50 dark:bg-[#0a0f1d]/50 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col shrink-0 select-none transition-colors z-20">
@@ -140,7 +147,7 @@ export const DashboardSidebar: React.FC = () => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
 
-              if (item.isLabelOnly && currentUser.role !== 'RECORD_LABEL' && currentUser.role !== 'SUPER_ADMIN') {
+              if (item.isLabelOnly && userRole !== 'RECORD_LABEL' && userRole !== 'SUPER_ADMIN') {
                 return null;
               }
 

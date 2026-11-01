@@ -70,8 +70,8 @@ export const DashboardHeader: React.FC = () => {
           >
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm shrink-0 bg-gradient-to-tr from-purple-500 to-blue-500 p-0.5">
               <img
-                src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
-                alt={currentUser.stageName}
+                src={currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
+                alt={currentUser?.stageName || 'User'}
                 className="w-full h-full rounded-full object-cover bg-white"
               />
             </div>
@@ -80,7 +80,7 @@ export const DashboardHeader: React.FC = () => {
                 Welcome,
               </span>
               <span className="font-bold text-slate-900 dark:text-white text-sm block leading-tight flex items-center gap-1">
-                <span>{currentUser.stageName || currentUser.fullName}</span>
+                <span>{currentUser?.stageName || currentUser?.fullName || 'Artist'}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-transform" />
               </span>
             </div>
@@ -94,10 +94,10 @@ export const DashboardHeader: React.FC = () => {
               </div>
 
               <div className="px-3.5 py-2 space-y-0.5">
-                <div className="font-bold text-slate-900 dark:text-white text-xs">{currentUser.fullName}</div>
-                <div className="text-[11px] text-slate-500 font-mono truncate">{currentUser.email}</div>
+                <div className="font-bold text-slate-900 dark:text-white text-xs">{currentUser?.fullName || 'User'}</div>
+                <div className="text-[11px] text-slate-500 font-mono truncate">{currentUser?.email || ''}</div>
                 <div className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase pt-0.5">
-                  Role: {currentUser.role}
+                  Role: {currentUser?.role || 'ARTIST'}
                 </div>
               </div>
 

@@ -29,20 +29,20 @@ export default function AdminOverviewPage() {
       .then((res) => res.json())
       .then((data) => {
         if (!isMounted) return;
-        let list = Array.isArray(data?.releases) ? data.releases : [];
+        let list = Array.isArray(data?.releases) ? data.releases.filter(Boolean) : [];
         try {
           const local = JSON.parse(localStorage.getItem('digitube_all_submitted_releases') || '[]');
           if (Array.isArray(local) && local.length > 0) {
-            const map = new Map(list.map((r: any) => [r.id, r]));
+            const map = new Map(list.filter((r: any) => r && r.id).map((r: any) => [r.id, r]));
             for (const item of local) {
-              if (!map.has(item.id)) {
+              if (item && item.id && !map.has(item.id)) {
                 list.unshift(item);
                 map.set(item.id, item);
               }
             }
           }
         } catch {}
-        if (list.length > 0) setSyncedReleases(list);
+        if (list.length > 0) setSyncedReleases(list.filter(Boolean));
       })
       .catch(() => {});
 
@@ -51,17 +51,24 @@ export default function AdminOverviewPage() {
     };
   }, [contextReleases]);
 
-  const activeReleases = syncedReleases.length > 0 ? syncedReleases : contextReleases;
+  const activeReleases = (syncedReleases.length > 0 ? syncedReleases : contextReleases || []).filter(Boolean);
 
   const pendingReview = activeReleases.filter(
-    (r) => r.status === 'IN_REVIEW' || r.status === 'SUBMITTED' || r.status === 'VALIDATION' || r.status === 'CHANGES_REQUIRED'
+    (r) =>
+      r &&
+      (r.status === 'IN_REVIEW' ||
+        r.status === 'SUBMITTED' ||
+        r.status === 'VALIDATION' ||
+        r.status === 'CHANGES_REQUIRED')
   ).length;
 
-  const pendingPayouts = payouts.filter((p) => p.status === 'PENDING_REVIEW');
-  const pendingPayoutsTotal = pendingPayouts.reduce((acc, p) => acc + p.amount, 0);
+  const safePayouts = Array.isArray(payouts) ? payouts.filter(Boolean) : [];
+  const pendingPayouts = safePayouts.filter((p) => p && p.status === 'PENDING_REVIEW');
+  const pendingPayoutsTotal = pendingPayouts.reduce((acc, p) => acc + (p.amount || 0), 0);
 
-  const totalGrossReconciled = statements.reduce((acc, s) => acc + s.totalGrossInr, 0);
-  const totalDigiTubeCommission = statements.reduce((acc, s) => acc + s.digiTubeCommissionInr, 0);
+  const safeStatements = Array.isArray(statements) ? statements.filter(Boolean) : [];
+  const totalGrossReconciled = safeStatements.reduce((acc, s) => acc + (s.totalGrossInr || 0), 0);
+  const totalDigiTubeCommission = safeStatements.reduce((acc, s) => acc + (s.digiTubeCommissionInr || 0), 0);
 
   return (
     <div className="space-y-8 animate-fade-in">

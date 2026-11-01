@@ -52,15 +52,15 @@ export default function AdminReviewPage() {
         headers: { 'Cache-Control': 'no-cache' },
       });
       const data = await res.json();
-      let combined: ReleaseItem[] = Array.isArray(data?.releases) ? data.releases : [];
+      let combined: ReleaseItem[] = Array.isArray(data?.releases) ? data.releases.filter(Boolean) : [];
 
       // Merge with browser-wide submitted releases in localStorage
       try {
         const local = JSON.parse(localStorage.getItem('digitube_all_submitted_releases') || '[]');
         if (Array.isArray(local) && local.length > 0) {
-          const serverMap = new Map(combined.map((r) => [r.id, r]));
+          const serverMap = new Map(combined.filter((r) => r && r.id).map((r) => [r.id, r]));
           for (const item of local) {
-            if (!serverMap.has(item.id)) {
+            if (item && item.id && !serverMap.has(item.id)) {
               combined.unshift(item);
               serverMap.set(item.id, item);
             }
@@ -70,20 +70,20 @@ export default function AdminReviewPage() {
 
       // Fallback merge with context releases if any
       if (contextReleases && contextReleases.length > 0) {
-        const currentMap = new Map(combined.map((r) => [r.id, r]));
+        const currentMap = new Map(combined.filter((r) => r && r.id).map((r) => [r.id, r]));
         for (const r of contextReleases) {
-          if (!currentMap.has(r.id)) {
+          if (r && r.id && !currentMap.has(r.id)) {
             combined.unshift(r);
             currentMap.set(r.id, r);
           }
         }
       }
 
-      setActiveReleases(combined);
+      setActiveReleases(combined.filter(Boolean));
     } catch (err) {
       console.warn('Admin review sync notice:', err);
       if (contextReleases && contextReleases.length > 0) {
-        setActiveReleases(contextReleases);
+        setActiveReleases(contextReleases.filter(Boolean));
       }
     } finally {
       setLoading(false);
@@ -97,22 +97,24 @@ export default function AdminReviewPage() {
   // Filter releases based on active tab
   const pendingQueue = activeReleases.filter(
     (r) =>
-      r.status === 'IN_REVIEW' ||
-      r.status === 'SUBMITTED' ||
-      r.status === 'VALIDATION' ||
-      r.status === 'CHANGES_REQUIRED'
+      r &&
+      (r.status === 'IN_REVIEW' ||
+        r.status === 'SUBMITTED' ||
+        r.status === 'VALIDATION' ||
+        r.status === 'CHANGES_REQUIRED')
   );
 
   const approvedList = activeReleases.filter(
-    (r) => r.status === 'APPROVED' || r.status === 'LIVE'
+    (r) => r && (r.status === 'APPROVED' || r.status === 'LIVE')
   );
 
-  const displayedList =
+  const displayedList = (
     activeTab === 'PENDING'
       ? pendingQueue
       : activeTab === 'APPROVED'
       ? approvedList
-      : activeReleases;
+      : activeReleases
+  ).filter(Boolean);
 
   const persistStatusChange = (id: string, status: ReleaseItem['status'], notes?: string) => {
     // 1. Update component state
@@ -630,11 +632,11 @@ export default function AdminReviewPage() {
               <div className="space-y-2">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-blue-600" />
-                  <span>3. Contributor Credits ({selectedDetailRel.tracks?.[0]?.credits?.length || 0})</span>
+                  <span>3. Contributor Credits ({(selectedDetailRel.tracks?.[0]?.credits || []).length})</span>
                 </h4>
                 <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
-                  {selectedDetailRel.tracks?.[0]?.credits && selectedDetailRel.tracks[0].credits.length > 0 ? (
-                    selectedDetailRel.tracks[0].credits.map((c, i) => (
+                  {Array.isArray(selectedDetailRel.tracks?.[0]?.credits) && selectedDetailRel.tracks![0].credits!.length > 0 ? (
+                    selectedDetailRel.tracks![0].credits!.map((c, i) => (
                       <div key={c.id || i} className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0 last:pb-0">
                         <span className="font-semibold text-slate-900 dark:text-white">{c.name}</span>
                         <div className="flex items-center gap-2">
@@ -657,10 +659,10 @@ export default function AdminReviewPage() {
               <div className="space-y-2">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                   <PieChart className="w-4 h-4 text-blue-600" />
-                  <span>4. Royalty Splits ({selectedDetailRel.splits?.length || 1})</span>
+                  <span>4. Royalty Splits ({(selectedDetailRel.splits || []).length || 1})</span>
                 </h4>
                 <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
-                  {selectedDetailRel.splits && selectedDetailRel.splits.length > 0 ? (
+                  {Array.isArray(selectedDetailRel.splits) && selectedDetailRel.splits.length > 0 ? (
                     selectedDetailRel.splits.map((s, i) => (
                       <div key={s.id || i} className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0 last:pb-0">
                         <div>

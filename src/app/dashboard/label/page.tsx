@@ -27,8 +27,9 @@ export default function RecordLabelPage() {
   const [email, setEmail] = useState('');
   const [successInvite, setSuccessInvite] = useState(false);
 
-  const totalLabelRevenue = labelArtists.reduce((acc, a) => acc + a.totalRevenueInr, 0);
-  const totalLabelStreams = labelArtists.reduce((acc, a) => acc + a.totalStreams, 0);
+  const safeLabelArtists = (labelArtists || []).filter(Boolean);
+  const totalLabelRevenue = safeLabelArtists.reduce((acc, a) => acc + (a?.totalRevenueInr || 0), 0);
+  const totalLabelStreams = safeLabelArtists.reduce((acc, a) => acc + (a?.totalStreams || 0), 0);
 
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault();

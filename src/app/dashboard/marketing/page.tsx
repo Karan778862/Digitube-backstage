@@ -38,13 +38,15 @@ export default function MarketingPage() {
 
   const handleCreateSmartLink = (e: React.FormEvent) => {
     e.preventDefault();
-    const rel = releases.find((r) => r.id === selectedRelId) || releases[0];
+    const safeList = (releases || []).filter(Boolean);
+    const rel = safeList.find((r) => r.id === selectedRelId) || safeList[0];
+    if (!rel) return;
     createSmartLink({
       releaseId: rel.id,
-      slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-      title: rel.title,
-      artistName: rel.artistStageName,
-      artworkUrl: rel.artworkUrl,
+      slug: (slug || 'single').toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+      title: rel.title || 'Untitled Release',
+      artistName: rel.artistStageName || 'Artist',
+      artworkUrl: rel.artworkUrl || '',
       spotifyUrl,
       appleMusicUrl: appleUrl,
       youtubeUrl: ytUrl,

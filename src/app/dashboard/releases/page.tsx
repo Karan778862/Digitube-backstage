@@ -25,19 +25,28 @@ export default function ReleasesCatalogPage() {
   const [selectedRelease, setSelectedRelease] = useState<ReleaseItem | null>(null);
   const [takedownModalRelease, setTakedownModalRelease] = useState<ReleaseItem | null>(null);
 
-  const filteredReleases = releases.filter((rel) => {
+  const filteredReleases = (releases || []).filter(Boolean).filter((rel) => {
+    const title = rel?.title || '';
+    const code = rel?.releaseCode || '';
+    const upc = rel?.upcEan || '';
+    const artist = rel?.artistStageName || '';
+    const s = (search || '').toLowerCase();
+
     const matchesSearch =
-      rel.title.toLowerCase().includes(search.toLowerCase()) ||
-      rel.releaseCode.toLowerCase().includes(search.toLowerCase()) ||
-      rel.upcEan.toLowerCase().includes(search.toLowerCase()) ||
-      rel.artistStageName.toLowerCase().includes(search.toLowerCase());
+      title.toLowerCase().includes(s) ||
+      code.toLowerCase().includes(s) ||
+      upc.toLowerCase().includes(s) ||
+      artist.toLowerCase().includes(s);
 
     if (filterStatus === 'ALL') return matchesSearch;
-    if (filterStatus === 'LIVE') return matchesSearch && rel.status === 'LIVE';
+    if (filterStatus === 'LIVE') return matchesSearch && rel?.status === 'LIVE';
     if (filterStatus === 'IN_REVIEW')
-      return matchesSearch && (rel.status === 'IN_REVIEW' || rel.status === 'SUBMITTED' || rel.status === 'VALIDATION');
-    if (filterStatus === 'CHANGES_REQUIRED') return matchesSearch && rel.status === 'CHANGES_REQUIRED';
-    return matchesSearch && rel.status === filterStatus;
+      return (
+        matchesSearch &&
+        (rel?.status === 'IN_REVIEW' || rel?.status === 'SUBMITTED' || rel?.status === 'VALIDATION')
+      );
+    if (filterStatus === 'CHANGES_REQUIRED') return matchesSearch && rel?.status === 'CHANGES_REQUIRED';
+    return matchesSearch && rel?.status === filterStatus;
   });
 
   const handleConfirmTakedown = () => {
@@ -114,7 +123,11 @@ export default function ReleasesCatalogPage() {
           </div>
         ) : (
           filteredReleases.map((rel) => {
-            const firstTrack = rel.tracks[0];
+            const tracksList = Array.isArray(rel.tracks) ? rel.tracks : [];
+            const firstTrack = tracksList.length > 0 ? tracksList[0] : null;
+            const artwork =
+              rel.artworkUrl ||
+              'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80';
             return (
               <div
                 key={rel.id}
@@ -123,11 +136,11 @@ export default function ReleasesCatalogPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm">
-                      <img src={rel.artworkUrl} alt={rel.title} className="w-full h-full object-cover" />
+                      <img src={artwork} alt={rel.title} className="w-full h-full object-cover" />
                       {firstTrack && (
                         <button
                           onClick={() =>
-                            playAudioTrack(firstTrack, rel.title, rel.artistStageName, rel.artworkUrl)
+                            playAudioTrack(firstTrack, rel.title, rel.artistStageName, artwork)
                           }
                           className="absolute inset-0 bg-black/40 hover:bg-black/60 flex items-center justify-center text-white"
                           title="Preview Audio Master"
@@ -143,7 +156,7 @@ export default function ReleasesCatalogPage() {
                           {rel.releaseCode}
                         </span>
                         <span className="text-[10px] font-mono text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-1.5 py-0.5 rounded font-bold">
-                          UPC: {rel.upcEan}
+                          UPC: {rel.upcEan || 'Auto-Allocated'}
                         </span>
                         <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                           {rel.releaseType}
@@ -158,7 +171,7 @@ export default function ReleasesCatalogPage() {
                       </h3>
 
                       <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                        Primary: <strong className="text-slate-800 dark:text-slate-200">{rel.artistStageName}</strong> • {rel.primaryGenre} • {rel.tracks.length} {rel.tracks.length === 1 ? 'Track' : 'Tracks'} • Released: {rel.targetReleaseDate}
+                        Primary: <strong className="text-slate-800 dark:text-slate-200">{rel.artistStageName}</strong> • {rel.primaryGenre} • {tracksList.length} {tracksList.length === 1 ? 'Track' : 'Tracks'} • Released: {rel.targetReleaseDate || 'TBD'}
                       </p>
                     </div>
                   </div>
@@ -244,32 +257,34 @@ export default function ReleasesCatalogPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div>
                 <span className="text-slate-400 block">UPC / EAN:</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white">{selectedRelease.upcEan}</span>
+                <span className="font-mono font-bold text-slate-900 dark:text-white">{selectedRelease.upcEan || 'Auto-Allocated'}</span>
               </div>
               <div>
                 <span className="text-slate-400 block">Record Label:</span>
-                <span className="text-slate-900 dark:text-white font-medium">{selectedRelease.recordLabel}</span>
+                <span className="text-slate-900 dark:text-white font-medium">{selectedRelease.recordLabel || 'DigiTube Music'}</span>
               </div>
               <div>
                 <span className="text-slate-400 block">Target Live Date:</span>
-                <span className="text-slate-900 dark:text-white font-medium">{selectedRelease.targetReleaseDate}</span>
+                <span className="text-slate-900 dark:text-white font-medium">{selectedRelease.targetReleaseDate || 'TBD'}</span>
               </div>
             </div>
 
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Track List</h4>
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Track List ({(selectedRelease.tracks || []).length})
+              </h4>
               <div className="space-y-1.5">
-                {selectedRelease.tracks.map((t) => (
+                {(selectedRelease.tracks || []).map((t, idx) => (
                   <div
-                    key={t.id}
+                    key={t.id || idx}
                     className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs"
                   >
                     <div>
-                      <span className="font-bold text-slate-900 dark:text-white">{t.trackNumber}. {t.title}</span>
-                      <span className="text-[10px] font-mono text-slate-400 ml-2">ISRC: {t.isrcCode}</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{t.trackNumber || idx + 1}. {t.title}</span>
+                      <span className="text-[10px] font-mono text-slate-400 ml-2">ISRC: {t.isrcCode || 'Auto-Allocated'}</span>
                     </div>
                     <button
-                      onClick={() => playAudioTrack(t, selectedRelease.title, selectedRelease.artistStageName, selectedRelease.artworkUrl)}
+                      onClick={() => playAudioTrack(t, selectedRelease.title, selectedRelease.artistStageName, selectedRelease.artworkUrl || '')}
                       className="px-2 py-1 rounded bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 hover:bg-blue-100 text-[11px] font-bold flex items-center gap-1"
                     >
                       <Play className="w-3 h-3 fill-blue-600 dark:fill-blue-400" /> Play

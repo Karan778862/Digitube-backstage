@@ -86,12 +86,16 @@ export const AdminSidebar: React.FC = () => {
 
   const userRole = currentUser?.role || 'GUEST';
 
-  const pendingReviewCount = releases.filter(
-    (r) => r.status === 'IN_REVIEW' || r.status === 'SUBMITTED' || r.status === 'VALIDATION'
+  const safeReleases = Array.isArray(releases) ? releases.filter(Boolean) : [];
+  const safePayouts = Array.isArray(payouts) ? payouts.filter(Boolean) : [];
+  const safeTickets = Array.isArray(tickets) ? tickets.filter(Boolean) : [];
+
+  const pendingReviewCount = safeReleases.filter(
+    (r) => r?.status === 'IN_REVIEW' || r?.status === 'SUBMITTED' || r?.status === 'VALIDATION'
   ).length;
 
-  const pendingPayoutsCount = payouts.filter((p) => p.status === 'PENDING_REVIEW').length;
-  const openTicketsCount = tickets.filter((t) => t.status === 'NEW' || t.status === 'IN_PROGRESS').length;
+  const pendingPayoutsCount = safePayouts.filter((p) => p?.status === 'PENDING_REVIEW').length;
+  const openTicketsCount = safeTickets.filter((t) => t?.status === 'NEW' || t?.status === 'IN_PROGRESS').length;
 
   // Filter navigation items strictly by role
   const visibleNav = ALL_ADMIN_NAV.filter((item) => item.allowedRoles.includes(userRole));

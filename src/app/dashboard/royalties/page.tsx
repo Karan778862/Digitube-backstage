@@ -160,7 +160,7 @@ export default function RoyaltiesPage() {
                       <div className="text-[10px] font-mono text-slate-400">ISRC: {line.isrc}</div>
                     </td>
                     <td className="py-3 px-3 text-slate-700 dark:text-slate-300 uppercase font-semibold text-[11px]">
-                      {line.store.replace('_', ' ')}
+                      {(line.store || '').replace('_', ' ')}
                     </td>
                     <td className="py-3 px-3 text-center font-mono text-slate-500">
                       {line.country}

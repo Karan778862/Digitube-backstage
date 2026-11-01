@@ -11,6 +11,8 @@
     "primaryGenre": "Indian Pop",
     "primaryLanguage": "Hindi",
     "targetReleaseDate": "2026-11-20",
+    "upcEan": "890192847199",
+    "territoryType": "WORLDWIDE",
     "artworkUrl": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80",
     "status": "APPROVED",
     "createdAt": "2026-11-01T08:53:16.598Z",
@@ -23,8 +25,47 @@
         "audioFormat": "WAV",
         "audioBitrate": "24-bit/48kHz",
         "durationSeconds": 215,
-        "isrcCode": "INDGT2699999"
+        "isrcCode": "INDGT2699999",
+        "credits": [
+          {
+            "id": "cr_test_1",
+            "name": "Testing Artist",
+            "role": "MAIN_ARTIST"
+          }
+        ]
       }
+    ],
+    "splits": [
+      {
+        "id": "sp_test_1",
+        "payeeName": "Testing Artist",
+        "payeeEmail": "artist@test.com",
+        "percentageShare": 100,
+        "roleDescription": "Primary Artist",
+        "isConfirmed": true
+      }
+    ],
+    "dspStatuses": [
+      {
+        "store": "spotify",
+        "name": "Spotify",
+        "status": "LIVE"
+      },
+      {
+        "store": "apple_music",
+        "name": "Apple Music",
+        "status": "LIVE"
+      },
+      {
+        "store": "youtube_music",
+        "name": "YouTube Music",
+        "status": "LIVE"
+      }
+    ],
+    "enabledDsps": [
+      "spotify",
+      "apple_music",
+      "youtube_music"
     ],
     "updatedAt": "2026-11-01T08:53:16.632Z",
     "reviewNotes": "Quality assurance passed."

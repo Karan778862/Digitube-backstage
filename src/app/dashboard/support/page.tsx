@@ -114,13 +114,13 @@ export default function SupportPage() {
                         : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
                     }`}
                   >
-                    {t.status.replace(/_/g, ' ')}
+                    {(t.status || '').replace(/_/g, ' ')}
                   </span>
                 </div>
 
                 <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{t.title}</h4>
                 <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 mt-2">
-                  <span>{t.category.replace(/_/g, ' ')}</span>
+                  <span>{(t.category || '').replace(/_/g, ' ')}</span>
                   <span>{formatDate(t.updatedAt)}</span>
                 </div>
               </button>
@@ -143,14 +143,14 @@ export default function SupportPage() {
                   </div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white">{selectedTicket.title}</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Category: {selectedTicket.category.replace(/_/g, ' ')}
+                    Category: {(selectedTicket.category || '').replace(/_/g, ' ')}
                   </p>
                 </div>
               </div>
 
               {/* Chat Messages */}
               <div className="space-y-4 flex-1 overflow-y-auto max-h-[350px] pr-2">
-                {selectedTicket.messages.map((m) => (
+                {(selectedTicket.messages || []).map((m) => (
                   <div
                     key={m.id}
                     className={`flex flex-col ${m.isStaff ? 'items-start' : 'items-end'}`}

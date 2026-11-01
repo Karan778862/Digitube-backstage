@@ -30,12 +30,20 @@ export default function WalletPage() {
   const [errorMessage, setErrorMessage] = useState('');
 
   // Bank Form State
-  const [holderName, setHolderName] = useState(wallet.bankAccount.holderName || '');
-  const [bankName, setBankName] = useState(wallet.bankAccount.bankName || '');
-  const [accountNumber, setAccountNumber] = useState(wallet.bankAccount.accountNumberMasked || '');
-  const [ifsc, setIfsc] = useState(wallet.bankAccount.ifscSwift || '');
-  const [upi, setUpi] = useState(wallet.bankAccount.upiId || '');
-  const [pan, setPan] = useState(wallet.bankAccount.panTaxId || '');
+  const bank = wallet?.bankAccount || {
+    holderName: '',
+    bankName: '',
+    accountNumberMasked: '',
+    ifscSwift: '',
+    upiId: '',
+    panTaxId: '',
+  };
+  const [holderName, setHolderName] = useState(bank.holderName || '');
+  const [bankName, setBankName] = useState(bank.bankName || '');
+  const [accountNumber, setAccountNumber] = useState(bank.accountNumberMasked || '');
+  const [ifsc, setIfsc] = useState(bank.ifscSwift || '');
+  const [upi, setUpi] = useState(bank.upiId || '');
+  const [pan, setPan] = useState(bank.panTaxId || '');
 
   const handleRequestWithdrawal = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,14 +55,16 @@ export default function WalletPage() {
       return;
     }
 
-    if (amt > wallet.availableBalance) {
+    if (amt > (wallet?.availableBalance || 0)) {
       setErrorMessage('Requested amount exceeds your available balance.');
       return;
     }
 
     const success = requestPayout(
       amt,
-      payoutMethod === 'BANK_NEFT_RTGS' ? 'Bank Transfer (NEFT/RTGS)' : `UPI (${wallet.bankAccount.upiId})`
+      payoutMethod === 'BANK_NEFT_RTGS'
+        ? 'Bank Transfer (NEFT/RTGS)'
+        : `UPI (${wallet?.bankAccount?.upiId || upi || 'Direct'})`
     );
 
     if (success) {

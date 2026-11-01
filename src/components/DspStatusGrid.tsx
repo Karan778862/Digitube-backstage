@@ -11,7 +11,19 @@ interface DspStatusGridProps {
   compact?: boolean;
 }
 
+const DEFAULT_FALLBACK_DSPS: DspStoreStatusItem[] = [
+  { store: 'spotify', name: 'Spotify', status: 'PENDING' },
+  { store: 'apple_music', name: 'Apple Music', status: 'PENDING' },
+  { store: 'youtube_music', name: 'YouTube Music', status: 'PENDING' },
+  { store: 'jiosaavn', name: 'JioSaavn', status: 'PENDING' },
+  { store: 'wynk', name: 'Wynk Music', status: 'PENDING' },
+  { store: 'amazon_music', name: 'Amazon Music', status: 'PENDING' },
+];
+
 export const DspStatusGrid: React.FC<DspStatusGridProps> = ({ dspStatuses, compact = false }) => {
+  const safeStatuses =
+    Array.isArray(dspStatuses) && dspStatuses.length > 0 ? dspStatuses : DEFAULT_FALLBACK_DSPS;
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'LIVE':
@@ -46,23 +58,24 @@ export const DspStatusGrid: React.FC<DspStatusGridProps> = ({ dspStatuses, compa
   if (compact) {
     return (
       <div className="flex flex-wrap gap-1.5 items-center">
-        {dspStatuses.map((dsp) => {
-          const color = getDspColor(dsp.store);
-          const isLive = dsp.status === 'LIVE';
-          const LogoIcon = getDspIconComponent(dsp.store);
+        {safeStatuses.map((dsp) => {
+          const storeKey = dsp?.store || 'spotify';
+          const color = getDspColor(storeKey);
+          const isLive = dsp?.status === 'LIVE';
+          const LogoIcon = getDspIconComponent(storeKey);
           return (
             <div
-              key={dsp.store}
+              key={storeKey}
               className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium border transition-colors ${
                 isLive
                   ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-300'
                   : 'bg-slate-100 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-400'
               }`}
-              title={`${getDspDisplayName(dsp.store)}: ${getStatusLabel(dsp.status)}`}
+              title={`${getDspDisplayName(storeKey)}: ${getStatusLabel(dsp?.status || 'PENDING')}`}
             >
               <LogoIcon size={12} className="shrink-0" />
-              <span className="font-semibold">{getDspDisplayName(dsp.store)}</span>
-              {getStatusIcon(dsp.status)}
+              <span className="font-semibold">{getDspDisplayName(storeKey)}</span>
+              {getStatusIcon(dsp?.status || 'PENDING')}
             </div>
           );
         })}
@@ -72,15 +85,15 @@ export const DspStatusGrid: React.FC<DspStatusGridProps> = ({ dspStatuses, compa
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-      {dspStatuses.map((dsp) => {
-        const color = getDspColor(dsp.store);
-        const isLive = dsp.status === 'LIVE';
-
-        const LogoIcon = getDspIconComponent(dsp.store);
+      {safeStatuses.map((dsp) => {
+        const storeKey = dsp?.store || 'spotify';
+        const color = getDspColor(storeKey);
+        const isLive = dsp?.status === 'LIVE';
+        const LogoIcon = getDspIconComponent(storeKey);
 
         return (
           <div
-            key={dsp.store}
+            key={storeKey}
             className={`p-3 rounded-xl border transition-all ${
               isLive
                 ? 'bg-white dark:bg-[#0d1322] border-slate-200/90 dark:border-slate-800 shadow-sm'

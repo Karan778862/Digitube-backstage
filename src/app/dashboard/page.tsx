@@ -21,12 +21,13 @@ import {
 export default function DashboardOverviewPage() {
   const { releases, wallet, currentUser } = useDigiTube();
 
-  const totalReleases = releases.length;
-  const liveReleases = releases.filter((r) => r.status === 'LIVE').length;
-  const inReviewReleases = releases.filter(
-    (r) => r.status === 'IN_REVIEW' || r.status === 'VALIDATION' || r.status === 'SUBMITTED'
+  const safeReleases = Array.isArray(releases) ? releases.filter(Boolean) : [];
+  const totalReleases = safeReleases.length;
+  const liveReleases = safeReleases.filter((r) => r?.status === 'LIVE').length;
+  const inReviewReleases = safeReleases.filter(
+    (r) => r?.status === 'IN_REVIEW' || r?.status === 'VALIDATION' || r?.status === 'SUBMITTED'
   ).length;
-  const changesRequired = releases.filter((r) => r.status === 'CHANGES_REQUIRED');
+  const changesRequired = safeReleases.filter((r) => r?.status === 'CHANGES_REQUIRED');
 
   return (
     <div className="space-y-6 animate-fade-in font-sans">
@@ -40,7 +41,7 @@ export default function DashboardOverviewPage() {
                 Action Required: Super Admin requested corrections for {changesRequired.length} release(s)
               </div>
               <p className="text-slate-700 dark:text-slate-300 mt-0.5 font-medium">
-                "{changesRequired[0].title}": {changesRequired[0].reviewNotes || 'Please review required fixes before distribution.'}
+                "{changesRequired[0]?.title || 'Release'}": {changesRequired[0]?.reviewNotes || 'Please review required fixes before distribution.'}
               </p>
             </div>
           </div>

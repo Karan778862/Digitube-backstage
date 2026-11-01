@@ -21,12 +21,12 @@ export const AudioPlayerModal: React.FC = () => {
   const { track, releaseTitle, artistName, artworkUrl, isOpen } = audioState;
 
   // Resolve best initial audio source
-  const resolveAudioUrl = (rawUrl?: string): string => {
-    if (!rawUrl || rawUrl.trim() === '' || rawUrl.includes('actions.google.com')) {
+  const resolveAudioUrl = (rawUrl?: any): string => {
+    if (!rawUrl || typeof rawUrl !== 'string' || rawUrl.trim() === '' || rawUrl.includes('actions.google.com')) {
       return RELIABLE_CDN_STREAM;
     }
     // If running in /admin, any blob URL from another tab is inaccessible; use reliable CDN stream
-    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin') && rawUrl.startsWith('blob:')) {
+    if (typeof window !== 'undefined' && window.location?.pathname?.startsWith('/admin') && rawUrl.startsWith('blob:')) {
       return RELIABLE_CDN_STREAM;
     }
     return rawUrl;
