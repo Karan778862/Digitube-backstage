@@ -196,11 +196,26 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
         ? '/api/releases?all=true'
         : `/api/releases?email=${encodeURIComponent(user.email)}`;
 
-      fetch(endpoint)
+      fetch(endpoint, { cache: 'no-store' })
         .then((res) => res.json())
         .then((data) => {
-          if (data?.success && Array.isArray(data.releases)) {
-            setReleases(data.releases);
+          let list = Array.isArray(data?.releases) ? data.releases : [];
+          try {
+            const local = JSON.parse(localStorage.getItem('digitube_all_submitted_releases') || '[]');
+            if (Array.isArray(local) && local.length > 0) {
+              const map = new Map(list.map((r: any) => [r.id, r]));
+              for (const item of local) {
+                if (isAdminRole || (item.artistId && item.artistId.toLowerCase() === user.email.toLowerCase())) {
+                  if (!map.has(item.id)) {
+                    list.unshift(item);
+                    map.set(item.id, item);
+                  }
+                }
+              }
+            }
+          } catch {}
+          if (list.length > 0) {
+            setReleases(list);
           }
         })
         .catch(() => {});
@@ -299,6 +314,27 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: true,
       });
       setActiveContext('ADMIN');
+
+      // Fetch all releases for admin inspection
+      fetch('/api/releases?all=true', { cache: 'no-store' })
+        .then((res) => res.json())
+        .then((data) => {
+          let list = Array.isArray(data?.releases) ? data.releases : [];
+          try {
+            const local = JSON.parse(localStorage.getItem('digitube_all_submitted_releases') || '[]');
+            if (Array.isArray(local) && local.length > 0) {
+              const map = new Map(list.map((r: any) => [r.id, r]));
+              for (const item of local) {
+                if (!map.has(item.id)) {
+                  list.unshift(item);
+                  map.set(item.id, item);
+                }
+              }
+            }
+          } catch {}
+          if (list.length > 0) setReleases(list);
+        })
+        .catch(() => {});
     } else if (role === 'RECORD_LABEL') {
       setCurrentUser({
         id: 'usr_label_001',
@@ -345,6 +381,11 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
 
   const addRelease = (newRel: ReleaseItem) => {
     setReleases((prev) => [newRel, ...prev]);
+    try {
+      const local = JSON.parse(localStorage.getItem('digitube_all_submitted_releases') || '[]');
+      const filtered = Array.isArray(local) ? local.filter((r: any) => r.id !== newRel.id) : [];
+      localStorage.setItem('digitube_all_submitted_releases', JSON.stringify([newRel, ...filtered]));
+    } catch {}
     logAuditAction('RELEASE_SUBMITTED', `Release: ${newRel.releaseCode} (${newRel.title})`, 'Artist submitted new release for automated and QA review.');
   };
 

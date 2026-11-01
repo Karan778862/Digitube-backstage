@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useDigiTube } from '@/lib/store';
 import { formatCurrencyINR, formatCompactNumber, formatDate } from '@/lib/utils';
@@ -20,10 +20,41 @@ import {
 } from 'lucide-react';
 
 export default function AdminOverviewPage() {
-  const { releases, payouts, statements, staff, auditLogs } = useDigiTube();
+  const { releases: contextReleases, payouts, statements, staff, auditLogs } = useDigiTube();
+  const [syncedReleases, setSyncedReleases] = useState<any[]>(contextReleases || []);
 
-  const pendingReview = releases.filter(
-    (r) => r.status === 'IN_REVIEW' || r.status === 'SUBMITTED' || r.status === 'VALIDATION'
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/releases?all=true', { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!isMounted) return;
+        let list = Array.isArray(data?.releases) ? data.releases : [];
+        try {
+          const local = JSON.parse(localStorage.getItem('digitube_all_submitted_releases') || '[]');
+          if (Array.isArray(local) && local.length > 0) {
+            const map = new Map(list.map((r: any) => [r.id, r]));
+            for (const item of local) {
+              if (!map.has(item.id)) {
+                list.unshift(item);
+                map.set(item.id, item);
+              }
+            }
+          }
+        } catch {}
+        if (list.length > 0) setSyncedReleases(list);
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, [contextReleases]);
+
+  const activeReleases = syncedReleases.length > 0 ? syncedReleases : contextReleases;
+
+  const pendingReview = activeReleases.filter(
+    (r) => r.status === 'IN_REVIEW' || r.status === 'SUBMITTED' || r.status === 'VALIDATION' || r.status === 'CHANGES_REQUIRED'
   ).length;
 
   const pendingPayouts = payouts.filter((p) => p.status === 'PENDING_REVIEW');
@@ -91,7 +122,7 @@ export default function AdminOverviewPage() {
             Live in DSP Stores
           </span>
           <div className="text-3xl font-extrabold text-slate-900 dark:text-white">
-            {releases.filter((r) => r.status === 'LIVE').length} Releases
+            {activeReleases.filter((r: any) => r.status === 'LIVE').length} Releases
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400">Synchronized with Spotify, Apple, JioSaavn</p>
         </div>

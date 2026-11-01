@@ -99,7 +99,7 @@ export default function NewReleaseWizardPage() {
       versionSubtitle: 'Original Mix',
       isrcCode: generateISRC(),
       durationSeconds: 214,
-      audioMasterUrl: 'https://actions.google.com/sounds/v1/ambiences/daytime_forest_bonfire.ogg',
+      audioMasterUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
       audioFileName: 'Master_Track_1.wav',
       audioFormat: 'WAV',
       audioBitrate: '24-bit / 48kHz (Lossless)',
@@ -351,7 +351,7 @@ export default function NewReleaseWizardPage() {
         versionSubtitle: 'Original Mix',
         isrcCode: generateISRC(),
         durationSeconds: 214,
-        audioMasterUrl: 'https://actions.google.com/sounds/v1/ambiences/daytime_forest_bonfire.ogg',
+        audioMasterUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
         audioFileName: 'Master_Track_1.wav',
         audioFormat: 'WAV',
         audioBitrate: '24-bit / 48kHz (Lossless)',
@@ -510,7 +510,7 @@ export default function NewReleaseWizardPage() {
         title: `Track ${nextNum}`,
         isrcCode: generateISRC(),
         durationSeconds: 180,
-        audioMasterUrl: 'https://actions.google.com/sounds/v1/water/ocean_waves.ogg',
+        audioMasterUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
         audioFileName: `Track_${nextNum}_Master.wav`,
         audioFormat: 'WAV',
         audioBitrate: '24-bit / 48kHz (Lossless)',
@@ -690,24 +690,52 @@ export default function NewReleaseWizardPage() {
       enabledDsps: enabledDsps as any,
     };
 
-    // 1. Add to client React store
-    addRelease(newRelease);
+    // Ensure valid playable audio URLs for all tracks
+    const finalizedRelease: ReleaseItem = {
+      ...newRelease,
+      tracks: newRelease.tracks.map((t, idx) => ({
+        ...t,
+        audioMasterUrl:
+          !t.audioMasterUrl || t.audioMasterUrl.includes('actions.google.com')
+            ? `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(idx % 4) + 1}.mp3`
+            : t.audioMasterUrl,
+      })),
+    };
 
-    // 2. Persist to API so Super Admin can see it immediately
+    // 1. Add to client React store
+    addRelease(finalizedRelease);
+
+    // 2. Persist to shared browser storage (for instant cross-role and multi-tab review testing)
+    try {
+      const existingGlobal = JSON.parse(localStorage.getItem('digitube_all_submitted_releases') || '[]');
+      const filteredGlobal = Array.isArray(existingGlobal) ? existingGlobal.filter((r: any) => r.id !== finalizedRelease.id) : [];
+      localStorage.setItem('digitube_all_submitted_releases', JSON.stringify([finalizedRelease, ...filteredGlobal]));
+
+      if (currentUser?.email) {
+        const userKey = `digitube_releases_${currentUser.email}`;
+        const existingUser = JSON.parse(localStorage.getItem(userKey) || '[]');
+        const filteredUser = Array.isArray(existingUser) ? existingUser.filter((r: any) => r.id !== finalizedRelease.id) : [];
+        localStorage.setItem(userKey, JSON.stringify([finalizedRelease, ...filteredUser]));
+      }
+    } catch {}
+
+    // 3. Persist to API so Super Admin can see it immediately on server
     try {
       await fetch('/api/releases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newRelease),
+        body: JSON.stringify(finalizedRelease),
       });
-    } catch {}
+    } catch (err) {
+      console.warn('API submission notice:', err);
+    }
 
-    // 3. Clear draft
+    // 4. Clear draft
     try {
       localStorage.removeItem(draftStorageKey);
     } catch {}
 
-    setSubmittedRelease(newRelease);
+    setSubmittedRelease(finalizedRelease);
     setSubmitting(false);
   };
 
@@ -1254,7 +1282,7 @@ export default function NewReleaseWizardPage() {
                         <label className={`flex-1 flex items-center justify-between bg-white dark:bg-slate-900 border rounded-xl px-3 py-2 text-xs cursor-pointer transition-colors ${
                           uploadingAudioIndex === idx
                             ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/30'
-                            : trk.audioMasterUrl && !trk.audioMasterUrl.includes('actions.google.com')
+                            : trk.audioMasterUrl
                             ? 'border-emerald-400 dark:border-emerald-700'
                             : 'border-slate-300 dark:border-slate-700 hover:border-blue-600'
                         }`}>
@@ -1269,7 +1297,7 @@ export default function NewReleaseWizardPage() {
                           </span>
                           {uploadingAudioIndex === idx ? (
                             <RefreshCw className="w-3.5 h-3.5 text-blue-600 animate-spin shrink-0 ml-1.5" />
-                          ) : trk.audioMasterUrl && !trk.audioMasterUrl.includes('actions.google.com') ? (
+                          ) : trk.audioMasterUrl ? (
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 ml-1.5" />
                           ) : (
                             <Upload className="w-3.5 h-3.5 text-blue-600 shrink-0 ml-1.5" />
