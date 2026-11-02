@@ -3,87 +3,81 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDigiTube } from '@/lib/store';
 import { formatDuration } from '@/lib/utils';
-import { Play, Pause, X, Volume2, VolumeX, Disc, ShieldCheck, Music2, RefreshCw } from 'lucide-react';
-
+import { Play, Pause, X, Volume2, VolumeX, Disc, ShieldCheck, Music2, RefreshCw, AlertCircle } from 'lucide-react';
 import { getTrackAudioUrl } from '@/lib/indexedDbAudio';
-
-const RELIABLE_CDN_STREAM = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
 
 export const AudioPlayerModal: React.FC = () => {
   const { audioState, closeAudioPlayer } = useDigiTube();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(180);
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [currentAudioSrc, setCurrentAudioSrc] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const { track, releaseTitle, artistName, artworkUrl, isOpen } = audioState;
-
-  // Resolve best initial audio source
-  const resolveAudioUrl = (rawUrl?: any): string => {
-    if (!rawUrl || typeof rawUrl !== 'string' || rawUrl.trim() === '' || rawUrl.includes('actions.google.com')) {
-      return RELIABLE_CDN_STREAM;
-    }
-    return rawUrl;
-  };
 
   useEffect(() => {
     if (isOpen && track) {
       let isCancelled = false;
 
       const initAudio = async () => {
-        // 1. Try retrieving real master audio from local IndexedDB storage
-        let targetSrc = '';
+        setIsLoading(true);
+        setPlaybackError(null);
+        setCurrentTime(0);
+
+        // 1. Check local IndexedDB storage first (gives instant 0-latency playback on local device)
+        let resolvedSrc = '';
         if (track.id) {
           try {
             const indexedSrc = await getTrackAudioUrl(track.id);
             if (indexedSrc) {
-              targetSrc = indexedSrc;
+              resolvedSrc = indexedSrc;
             }
           } catch {}
         }
 
-        // 2. Fall back to track.audioMasterUrl
-        if (!targetSrc) {
-          targetSrc = resolveAudioUrl(track.audioMasterUrl);
+        // 2. Fall back to track's server URL (e.g. /api/media/audio?id=... or /uploads/...)
+        if (!resolvedSrc && track.audioMasterUrl && !track.audioMasterUrl.includes('soundhelix')) {
+          resolvedSrc = track.audioMasterUrl;
         }
 
         if (isCancelled) return;
 
-        setCurrentAudioSrc(targetSrc);
-        setCurrentTime(0);
-        setDuration(track.durationSeconds || 218);
-        setHasError(false);
-        setIsPlaying(true);
+        if (!resolvedSrc) {
+          setIsLoading(false);
+          setPlaybackError('No audio file uploaded for this track yet.');
+          return;
+        }
+
+        setCurrentAudioSrc(resolvedSrc);
+        setDuration(track.durationSeconds || 180);
 
         if (audioRef.current) {
-          audioRef.current.src = targetSrc;
+          audioRef.current.src = resolvedSrc;
           audioRef.current.volume = isMuted ? 0 : volume;
           audioRef.current.currentTime = 0;
           audioRef.current.load();
 
-          const playPromise = audioRef.current.play();
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                if (!isCancelled) setIsPlaying(true);
-              })
-              .catch((err) => {
-                console.warn('Initial audio playback notice:', err?.message);
-                // Fallback to high-reliability stream only if completely unplayable
-                if (targetSrc !== RELIABLE_CDN_STREAM && audioRef.current && !isCancelled) {
-                  setCurrentAudioSrc(RELIABLE_CDN_STREAM);
-                  audioRef.current.src = RELIABLE_CDN_STREAM;
-                  audioRef.current.load();
-                  audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
-                } else {
-                  if (!isCancelled) setIsPlaying(false);
-                }
-              });
-          }
+          audioRef.current
+            .play()
+            .then(() => {
+              if (!isCancelled) {
+                setIsPlaying(true);
+                setIsLoading(false);
+              }
+            })
+            .catch((err) => {
+              if (!isCancelled) {
+                console.warn('Audio auto-play status:', err?.message);
+                setIsPlaying(false);
+                setIsLoading(false);
+                // In modern browsers, user click is sometimes required before auto-play
+              }
+            });
         }
       };
 
@@ -94,6 +88,7 @@ export const AudioPlayerModal: React.FC = () => {
       };
     } else {
       setIsPlaying(false);
+      setIsLoading(false);
       if (audioRef.current) {
         audioRef.current.pause();
       }
@@ -103,14 +98,14 @@ export const AudioPlayerModal: React.FC = () => {
   if (!isOpen || !track) return null;
 
   const handleAudioError = () => {
-    console.warn('Audio element error encountered, switching to backup CDN stream');
-    setHasError(true);
-    if (audioRef.current && currentAudioSrc !== RELIABLE_CDN_STREAM) {
-      setCurrentAudioSrc(RELIABLE_CDN_STREAM);
-      audioRef.current.src = RELIABLE_CDN_STREAM;
-      audioRef.current.load();
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
-    }
+    setIsLoading(false);
+    setIsPlaying(false);
+    setPlaybackError('Unable to stream this audio track. Click retry or upload in studio WAV/MP3 format.');
+  };
+
+  const handleCanPlay = () => {
+    setIsLoading(false);
+    setPlaybackError(null);
   };
 
   const togglePlay = () => {
@@ -119,19 +114,14 @@ export const AudioPlayerModal: React.FC = () => {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      setPlaybackError(null);
       audioRef.current
         .play()
         .then(() => setIsPlaying(true))
-        .catch(() => {
-          // If play failed, ensure we try fallback stream
-          if (audioRef.current && currentAudioSrc !== RELIABLE_CDN_STREAM) {
-            setCurrentAudioSrc(RELIABLE_CDN_STREAM);
-            audioRef.current.src = RELIABLE_CDN_STREAM;
-            audioRef.current.load();
-            audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
-          } else {
-            setIsPlaying(false);
-          }
+        .catch((err) => {
+          console.warn('Playback error:', err?.message);
+          setIsPlaying(false);
+          setPlaybackError('Could not start playback. Please click to retry.');
         });
     }
   };
@@ -155,34 +145,35 @@ export const AudioPlayerModal: React.FC = () => {
 
   const toggleMute = () => {
     if (!audioRef.current) return;
-    audioRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
+    if (isMuted) {
+      audioRef.current.volume = volume;
+      setIsMuted(false);
+    } else {
+      audioRef.current.volume = 0;
+      setIsMuted(true);
+    }
   };
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="fixed bottom-6 right-6 left-6 md:left-auto md:w-[480px] z-50 animate-slide-up font-sans">
-      {/* Hidden audio element with error recovery */}
+    <div className="fixed bottom-6 right-6 z-50 animate-slide-up max-w-md w-full">
       <audio
         ref={audioRef}
-        src={currentAudioSrc || RELIABLE_CDN_STREAM}
         onTimeUpdate={handleTimeUpdate}
         onError={handleAudioError}
+        onCanPlay={handleCanPlay}
         onEnded={() => setIsPlaying(false)}
         preload="auto"
       />
 
-      <div className="bg-white/95 dark:bg-[#0f1523]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-2xl p-4 text-slate-900 dark:text-white transition-colors">
-        {/* Top Header */}
-        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+      <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 shadow-2xl transition-all">
+        {/* Header Bar */}
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800/80">
           <div className="flex items-center gap-2">
-            <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-            <span className="text-[11px] font-semibold tracking-wide text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
-              <Disc className={`w-3.5 h-3.5 ${isPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }} /> Studio Master Audio QC
-            </span>
-            <span className="text-[10px] bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/60 px-2 py-0.5 rounded font-mono font-medium">
-              {track.audioFormat || 'WAV'} {track.audioBitrate || '24-bit/48kHz'}
+            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400">
+              DigiTube Lossless QC Player
             </span>
           </div>
 
@@ -209,7 +200,7 @@ export const AudioPlayerModal: React.FC = () => {
 
           <div className="min-w-0 flex-1">
             <h4 className="font-semibold text-xs text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
-              {track.title || 'Studio Track'}
+              {track.title || 'Studio Master Track'}
               {track.versionSubtitle && (
                 <span className="text-[11px] text-blue-600 dark:text-blue-400 font-normal">({track.versionSubtitle})</span>
               )}
@@ -219,14 +210,26 @@ export const AudioPlayerModal: React.FC = () => {
               <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded font-medium">
                 ISRC: {track.isrcCode || 'AUTOGEN'}
               </span>
-              {track.bpm && (
-                <span className="text-[10px] text-slate-400 font-mono">
-                  {track.bpm} BPM • {track.musicalKey || 'Standard'}
-                </span>
-              )}
+              <span className="text-[10px] text-slate-400 font-mono">
+                {track.audioFormat || 'WAV'} {track.audioBitrate || '24-bit'}
+              </span>
             </div>
           </div>
         </div>
+
+        {/* Error message if playback failed */}
+        {playbackError && (
+          <div className="mb-2 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 flex items-center gap-2 text-rose-700 dark:text-rose-400 text-xs">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            <span className="flex-1 truncate">{playbackError}</span>
+            <button
+              onClick={togglePlay}
+              className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* Animated Waveform Bars */}
         <div className="flex items-end gap-1 h-7 mb-2 px-1">
@@ -272,15 +275,19 @@ export const AudioPlayerModal: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={togglePlay}
-              className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-sm transition-transform active:scale-95"
+              disabled={isLoading}
+              className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-sm transition-transform active:scale-95 disabled:opacity-50"
             >
-              {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
+              {isLoading ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : isPlaying ? (
+                <Pause className="w-3.5 h-3.5" />
+              ) : (
+                <Play className="w-3.5 h-3.5 ml-0.5" />
+              )}
             </button>
             <div className="text-[11px] text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1.5">
-              <span>{isPlaying ? 'Playing Audio' : 'Paused'}</span>
-              {hasError && (
-                <span className="text-[9px] text-amber-500 bg-amber-500/10 px-1 rounded">Stream Backup</span>
-              )}
+              <span>{isLoading ? 'Buffering track...' : isPlaying ? 'Playing Studio Master' : 'Paused'}</span>
             </div>
           </div>
 

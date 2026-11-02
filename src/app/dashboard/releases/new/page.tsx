@@ -7,6 +7,7 @@ import { useDigiTube } from '@/lib/store';
 import { generateISRC, generateUPC } from '@/lib/utils';
 import { ReleaseType, ContributorRole, ReleaseItem, TrackItem, RoyaltySplitItem } from '@/lib/types';
 import { saveTrackAudioBlob } from '@/lib/indexedDbAudio';
+import { uploadAudioFileInChunks } from '@/lib/audioChunkUploader';
 import {
   Disc3,
   CheckCircle2,
@@ -100,8 +101,8 @@ export default function NewReleaseWizardPage() {
       versionSubtitle: 'Original Mix',
       isrcCode: generateISRC(),
       durationSeconds: 214,
-      audioMasterUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-      audioFileName: 'Master_Track_1.wav',
+      audioMasterUrl: '',
+      audioFileName: '',
       audioFormat: 'WAV',
       audioBitrate: '24-bit / 48kHz (Lossless)',
       isExplicit: false,
@@ -464,7 +465,7 @@ export default function NewReleaseWizardPage() {
     }
   };
 
-  // Audio Upload Handler (Duration Extraction + Server Storage)
+  // Audio Upload Handler (Duration Extraction + Chunked GridFS Upload + Local IndexedDB)
   const handleAudioFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, trackIdx: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -477,14 +478,16 @@ export default function NewReleaseWizardPage() {
       const tempAudio = new Audio(tempUrl);
       tempAudio.onloadedmetadata = () => {
         if (tempAudio.duration && !isNaN(tempAudio.duration)) {
-          const updated = [...tracks];
-          if (updated[trackIdx]) {
-            updated[trackIdx] = {
-              ...updated[trackIdx],
-              durationSeconds: Math.round(tempAudio.duration),
-            };
-            setTracks(updated);
-          }
+          setTracks((prev) => {
+            const updated = [...prev];
+            if (updated[trackIdx]) {
+              updated[trackIdx] = {
+                ...updated[trackIdx],
+                durationSeconds: Math.round(tempAudio.duration),
+              };
+            }
+            return updated;
+          });
         }
       };
     } catch {}
@@ -492,52 +495,49 @@ export default function NewReleaseWizardPage() {
     setUploadingAudioIndex(trackIdx);
     setUploadError(null);
 
-    // Save audio blob into browser IndexedDB for permanent local master playback
+    // 1. Save audio blob into browser IndexedDB for permanent local 0-latency playback
     const currentTrackId = tracks[trackIdx]?.id || `trk_${Date.now()}`;
-    saveTrackAudioBlob(currentTrackId, file).catch(() => {});
+    await saveTrackAudioBlob(currentTrackId, file).catch(() => {});
 
-    // Instant local preview
-    const updated = [...tracks];
-    updated[trackIdx] = {
-      ...updated[trackIdx],
-      id: currentTrackId,
-      audioFileName: file.name,
-      audioMasterUrl: tempUrl,
-      audioFormat: ext === 'MP3' ? 'MP3' : ext === 'FLAC' ? 'FLAC' : 'WAV',
-      audioBitrate: '24-bit / 48kHz (Lossless Verified)',
-    };
-    setTracks(updated);
+    // Instant local preview for immediate listening by the artist
+    setTracks((prev) => {
+      const updated = [...prev];
+      if (updated[trackIdx]) {
+        updated[trackIdx] = {
+          ...updated[trackIdx],
+          id: currentTrackId,
+          audioFileName: file.name,
+          audioMasterUrl: tempUrl,
+          audioFormat: ext === 'MP3' ? 'MP3' : ext === 'FLAC' ? 'FLAC' : 'WAV',
+          audioBitrate: '24-bit / 48kHz (Lossless Studio Master)',
+        };
+      }
+      return updated;
+    });
 
-    // Real server upload
+    // 2. Upload in slices to MongoDB Atlas GridFS for permanent Super Admin & cross-device playback
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'audio');
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (data.success && data.url) {
-        // Only override if server gave a real stored URL (not generic fallback stream)
-        const isRealUpload = data.url.startsWith('/uploads/') || data.url.startsWith('data:audio');
-        if (isRealUpload) {
-          const synced = [...tracks];
-          synced[trackIdx] = {
-            ...synced[trackIdx],
-            audioFileName: file.name,
-            audioMasterUrl: data.url,
-            audioFormat: ext === 'MP3' ? 'MP3' : ext === 'FLAC' ? 'FLAC' : 'WAV',
-            audioBitrate: '24-bit / 48kHz (Server Verified)',
-          };
-          setTracks(synced);
-        }
-        setLastSaved(`Track ${trackIdx + 1} master uploaded to server`);
+      const result = await uploadAudioFileInChunks(file);
+      if (result.success && result.url) {
+        setTracks((prev) => {
+          const synced = [...prev];
+          if (synced[trackIdx]) {
+            synced[trackIdx] = {
+              ...synced[trackIdx],
+              audioFileName: file.name,
+              audioMasterUrl: result.url!,
+              audioFormat: ext === 'MP3' ? 'MP3' : ext === 'FLAC' ? 'FLAC' : 'WAV',
+              audioBitrate: '24-bit / 48kHz (GridFS Master Stream)',
+            };
+          }
+          return synced;
+        });
+        setLastSaved(`Track ${trackIdx + 1} master stored permanently in MongoDB`);
+      } else {
+        console.warn('Chunk upload did not return URL, keeping local blob URL');
       }
     } catch (err: any) {
-      console.warn('Network audio upload fallback:', err);
+      console.warn('Network audio upload fallback (local playback active):', err?.message);
     } finally {
       setUploadingAudioIndex(null);
     }
@@ -555,8 +555,8 @@ export default function NewReleaseWizardPage() {
         title: `Track ${nextNum}`,
         isrcCode: generateISRC(),
         durationSeconds: 180,
-        audioMasterUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-        audioFileName: `Track_${nextNum}_Master.wav`,
+        audioMasterUrl: '',
+        audioFileName: '',
         audioFormat: 'WAV',
         audioBitrate: '24-bit / 48kHz (Lossless)',
         isExplicit: false,
@@ -735,15 +735,12 @@ export default function NewReleaseWizardPage() {
       enabledDsps: enabledDsps as any,
     };
 
-    // Ensure valid playable audio URLs for all tracks (keep user audio if uploaded)
+    // Ensure valid user audio is preserved exactly as uploaded
     const finalizedRelease: ReleaseItem = {
       ...newRelease,
-      tracks: newRelease.tracks.map((t, idx) => ({
+      tracks: newRelease.tracks.map((t) => ({
         ...t,
-        audioMasterUrl:
-          !t.audioMasterUrl || t.audioMasterUrl.includes('actions.google.com')
-            ? `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(idx % 4) + 1}.mp3`
-            : t.audioMasterUrl,
+        audioMasterUrl: t.audioMasterUrl || '',
       })),
     };
 

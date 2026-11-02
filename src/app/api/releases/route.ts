@@ -21,10 +21,7 @@ function normalizeTracksAudio(releases: ReleaseItem[]): ReleaseItem[] {
     ...rel,
     tracks: (rel.tracks || []).map((t) => ({
       ...t,
-      audioMasterUrl:
-        !t.audioMasterUrl || t.audioMasterUrl.includes('actions.google.com')
-          ? DEFAULT_AUDIO_STREAM
-          : t.audioMasterUrl,
+      audioMasterUrl: t.audioMasterUrl || '',
     })),
   }));
 }
@@ -172,18 +169,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Invalid release payload' }, { status: 400 });
     }
 
-    // Ensure tracks have valid audio stream URLs (fallback from dead google actions)
     const newRelease: ReleaseItem = {
       ...rawRelease,
       status: rawRelease.status || 'SUBMITTED',
       createdAt: rawRelease.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      tracks: (rawRelease.tracks || []).map((t, idx) => ({
+      tracks: (rawRelease.tracks || []).map((t) => ({
         ...t,
-        audioMasterUrl:
-          !t.audioMasterUrl || t.audioMasterUrl.includes('actions.google.com')
-            ? `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(idx % 4) + 1}.mp3`
-            : t.audioMasterUrl,
+        audioMasterUrl: t.audioMasterUrl || '',
       })),
     };
 

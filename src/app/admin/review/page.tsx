@@ -294,7 +294,7 @@ export default function AdminReviewPage() {
               id: 'trk_fallback',
               trackNumber: 1,
               title: rel.title,
-              audioMasterUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+              audioMasterUrl: '',
               audioFormat: 'WAV',
               audioBitrate: '24-bit/48kHz',
               durationSeconds: 218,
