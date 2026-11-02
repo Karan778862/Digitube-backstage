@@ -18,6 +18,7 @@ import {
   ShieldAlert,
   ChevronRight,
   ExternalLink,
+  LogOut,
 } from 'lucide-react';
 
 interface NavItem {
@@ -37,7 +38,7 @@ interface NavSection {
 
 export const DashboardSidebar: React.FC = () => {
   const pathname = usePathname();
-  const { releases, wallet, tickets, currentUser } = useDigiTube();
+  const { releases, wallet, tickets, currentUser, logoutUser } = useDigiTube();
 
   const safeReleases = Array.isArray(releases) ? releases.filter(Boolean) : [];
   const safeTickets = Array.isArray(tickets) ? tickets.filter(Boolean) : [];
@@ -210,6 +211,22 @@ export const DashboardSidebar: React.FC = () => {
             </Link>
           </div>
         )}
+      </div>
+
+      {/* Explicit Sign Out Button */}
+      <div className="px-3 py-2 border-t border-slate-200/60 dark:border-slate-800/60 shrink-0">
+        <button
+          type="button"
+          onClick={async () => {
+            await logoutUser();
+            window.location.href = '/login';
+          }}
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl text-xs font-semibold transition-colors"
+          title="Sign Out of DigiTube Backstage"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Sign Out / Log Out</span>
+        </button>
       </div>
 
       {/* Footer System Specs */}

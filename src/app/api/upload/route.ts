@@ -77,34 +77,28 @@ export async function POST(req: NextRequest) {
       publicUrl = `/uploads/${subDir}/${uniqueFileName}`;
     } catch {
       // On Vercel serverless, public/ is read-only (EROFS)
-      // Provide resilient serverless fallbacks:
-      if (uploadType === 'artwork') {
-        const mime =
-          ext === '.png'
-            ? 'image/png'
-            : ext === '.webp'
-            ? 'image/webp'
-            : 'image/jpeg';
-        publicUrl = `data:${mime};base64,${buffer.toString('base64')}`;
-      } else {
-        // For audio on Vercel:
-        // If file is small (< 4MB), encode as base64 data URL
-        if (buffer.length <= 4 * 1024 * 1024) {
+      // Save directly to /tmp/uploads and stream via /api/media
+      try {
+        const tmpDir = path.join('/tmp', 'uploads', subDir);
+        if (!fs.existsSync(tmpDir)) {
+          fs.mkdirSync(tmpDir, { recursive: true });
+        }
+        await fs.promises.writeFile(path.join(tmpDir, uniqueFileName), buffer);
+        publicUrl = `/api/media?file=${uniqueFileName}`;
+      } catch {
+        // In-memory fallback if /tmp also restricted
+        if (uploadType === 'artwork') {
+          const mime =
+            ext === '.png'
+              ? 'image/png'
+              : ext === '.webp'
+              ? 'image/webp'
+              : 'image/jpeg';
+          publicUrl = `data:${mime};base64,${buffer.toString('base64')}`;
+        } else if (buffer.length <= 4 * 1024 * 1024) {
           const mime = ext === '.mp3' ? 'audio/mpeg' : ext === '.ogg' ? 'audio/ogg' : 'audio/wav';
           publicUrl = `data:${mime};base64,${buffer.toString('base64')}`;
-        } else {
-          // Reliable 200 OK CDN master stream for larger files
-          publicUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
         }
-
-        // Also write to /tmp for local node access
-        try {
-          const tmpDir = path.join('/tmp', 'uploads', subDir);
-          if (!fs.existsSync(tmpDir)) {
-            fs.mkdirSync(tmpDir, { recursive: true });
-          }
-          await fs.promises.writeFile(path.join(tmpDir, uniqueFileName), buffer);
-        } catch {}
       }
     }
 

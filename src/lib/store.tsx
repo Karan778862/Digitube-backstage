@@ -256,6 +256,12 @@ export function DigiTubeProvider({ children }: { children: React.ReactNode }) {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
     } catch {}
+    try {
+      // Clear client session cookie directly as immediate fallback
+      document.cookie = 'digitube_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0;';
+      sessionStorage.clear();
+      localStorage.removeItem('digitube_session');
+    } catch {}
     setCurrentUser(EMPTY_USER);
     setReleases([]);
     setWallet(EMPTY_WALLET);

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useDigiTube } from '@/lib/store';
 import { generateISRC, generateUPC } from '@/lib/utils';
 import { ReleaseType, ContributorRole, ReleaseItem, TrackItem, RoyaltySplitItem } from '@/lib/types';
+import { saveTrackAudioBlob } from '@/lib/indexedDbAudio';
 import {
   Disc3,
   CheckCircle2,
@@ -387,26 +388,61 @@ export default function NewReleaseWizardPage() {
     setLastSaved('Draft cleared');
   };
 
-  // Artwork Upload Handler (Local Preview + Server Storage)
+  // Artwork Upload Handler (Optimized Canvas Compression + Instant Preview + Server Storage)
   const handleArtworkFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 1. Instant local preview
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setArtworkUrl(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
-
-    // 2. Real server upload
     setIsUploadingArtwork(true);
     setUploadError(null);
+
     try {
+      // 1. Client-side canvas compression to generate crisp 1200x1200px artwork (~180KB)
+      const compressedDataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+          const img = new Image();
+          img.onload = () => {
+            const maxDim = 1200;
+            let width = img.width;
+            let height = img.height;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', 0.88));
+            } else {
+              resolve(loadEvent.target?.result as string);
+            }
+          };
+          img.onerror = () => resolve(loadEvent.target?.result as string);
+          img.src = loadEvent.target?.result as string;
+        };
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(file);
+      });
+
+      if (compressedDataUrl) {
+        setArtworkUrl(compressedDataUrl);
+      }
+
+      // 2. Upload compressed image as Blob to server
+      const blob = await (await fetch(compressedDataUrl)).blob();
+      const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), { type: 'image/jpeg' });
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressedFile);
       formData.append('type', 'artwork');
 
       const res = await fetch('/api/upload', {
@@ -418,7 +454,7 @@ export default function NewReleaseWizardPage() {
       if (data.success && data.url) {
         setArtworkUrl(data.url);
         setLastSaved('Cover artwork uploaded and saved to server');
-      } else {
+      } else if (!compressedDataUrl) {
         setUploadError(data.error || 'Failed to upload artwork to server.');
       }
     } catch (err: any) {
@@ -456,10 +492,15 @@ export default function NewReleaseWizardPage() {
     setUploadingAudioIndex(trackIdx);
     setUploadError(null);
 
+    // Save audio blob into browser IndexedDB for permanent local master playback
+    const currentTrackId = tracks[trackIdx]?.id || `trk_${Date.now()}`;
+    saveTrackAudioBlob(currentTrackId, file).catch(() => {});
+
     // Instant local preview
     const updated = [...tracks];
     updated[trackIdx] = {
       ...updated[trackIdx],
+      id: currentTrackId,
       audioFileName: file.name,
       audioMasterUrl: tempUrl,
       audioFormat: ext === 'MP3' ? 'MP3' : ext === 'FLAC' ? 'FLAC' : 'WAV',
@@ -480,15 +521,19 @@ export default function NewReleaseWizardPage() {
 
       const data = await res.json();
       if (data.success && data.url) {
-        const synced = [...tracks];
-        synced[trackIdx] = {
-          ...synced[trackIdx],
-          audioFileName: file.name,
-          audioMasterUrl: data.url,
-          audioFormat: ext === 'MP3' ? 'MP3' : ext === 'FLAC' ? 'FLAC' : 'WAV',
-          audioBitrate: '24-bit / 48kHz (Server Verified)',
-        };
-        setTracks(synced);
+        // Only override if server gave a real stored URL (not generic fallback stream)
+        const isRealUpload = data.url.startsWith('/uploads/') || data.url.startsWith('data:audio');
+        if (isRealUpload) {
+          const synced = [...tracks];
+          synced[trackIdx] = {
+            ...synced[trackIdx],
+            audioFileName: file.name,
+            audioMasterUrl: data.url,
+            audioFormat: ext === 'MP3' ? 'MP3' : ext === 'FLAC' ? 'FLAC' : 'WAV',
+            audioBitrate: '24-bit / 48kHz (Server Verified)',
+          };
+          setTracks(synced);
+        }
         setLastSaved(`Track ${trackIdx + 1} master uploaded to server`);
       }
     } catch (err: any) {
@@ -690,15 +735,13 @@ export default function NewReleaseWizardPage() {
       enabledDsps: enabledDsps as any,
     };
 
-    // Ensure valid playable audio URLs for all tracks
+    // Ensure valid playable audio URLs for all tracks (keep user audio if uploaded)
     const finalizedRelease: ReleaseItem = {
       ...newRelease,
       tracks: newRelease.tracks.map((t, idx) => ({
         ...t,
         audioMasterUrl:
-          !t.audioMasterUrl ||
-          t.audioMasterUrl.includes('actions.google.com') ||
-          t.audioMasterUrl.startsWith('blob:')
+          !t.audioMasterUrl || t.audioMasterUrl.includes('actions.google.com')
             ? `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(idx % 4) + 1}.mp3`
             : t.audioMasterUrl,
       })),

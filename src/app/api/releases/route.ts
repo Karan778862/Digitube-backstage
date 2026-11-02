@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
     try {
       const db = await Promise.race([
         getDatabase(),
-        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Atlas Timeout')), 1500)),
+        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Atlas Timeout')), 5000)),
       ]);
       if (db) {
         const mongoReleases = await db.collection<ReleaseItem>('releases').find({}).sort({ createdAt: -1 }).toArray();
@@ -202,7 +202,7 @@ export async function POST(req: NextRequest) {
     try {
       const db = await Promise.race([
         getDatabase(),
-        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1500)),
+        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000)),
       ]);
       if (db) {
         await db.collection('releases').updateOne(
@@ -250,7 +250,7 @@ export async function PATCH(req: NextRequest) {
     try {
       const db = await Promise.race([
         getDatabase(),
-        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1500)),
+        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000)),
       ]);
       if (db) {
         await db.collection('releases').updateOne(

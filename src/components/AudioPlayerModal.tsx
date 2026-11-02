@@ -5,6 +5,8 @@ import { useDigiTube } from '@/lib/store';
 import { formatDuration } from '@/lib/utils';
 import { Play, Pause, X, Volume2, VolumeX, Disc, ShieldCheck, Music2, RefreshCw } from 'lucide-react';
 
+import { getTrackAudioUrl } from '@/lib/indexedDbAudio';
+
 const RELIABLE_CDN_STREAM = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
 
 export const AudioPlayerModal: React.FC = () => {
@@ -25,48 +27,71 @@ export const AudioPlayerModal: React.FC = () => {
     if (!rawUrl || typeof rawUrl !== 'string' || rawUrl.trim() === '' || rawUrl.includes('actions.google.com')) {
       return RELIABLE_CDN_STREAM;
     }
-    // If running in /admin, any blob URL from another tab is inaccessible; use reliable CDN stream
-    if (typeof window !== 'undefined' && window.location?.pathname?.startsWith('/admin') && rawUrl.startsWith('blob:')) {
-      return RELIABLE_CDN_STREAM;
-    }
     return rawUrl;
   };
 
   useEffect(() => {
     if (isOpen && track) {
-      const targetSrc = resolveAudioUrl(track.audioMasterUrl);
-      setCurrentAudioSrc(targetSrc);
-      setCurrentTime(0);
-      setDuration(track.durationSeconds || 218);
-      setHasError(false);
-      setIsPlaying(true);
+      let isCancelled = false;
 
-      if (audioRef.current) {
-        audioRef.current.src = targetSrc;
-        audioRef.current.volume = isMuted ? 0 : volume;
-        audioRef.current.currentTime = 0;
-        audioRef.current.load();
-
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setIsPlaying(true);
-            })
-            .catch((err) => {
-              console.warn('Initial audio playback notice:', err?.message);
-              // Fallback to high-reliability stream if first attempt failed
-              if (targetSrc !== RELIABLE_CDN_STREAM && audioRef.current) {
-                setCurrentAudioSrc(RELIABLE_CDN_STREAM);
-                audioRef.current.src = RELIABLE_CDN_STREAM;
-                audioRef.current.load();
-                audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
-              } else {
-                setIsPlaying(false);
-              }
-            });
+      const initAudio = async () => {
+        // 1. Try retrieving real master audio from local IndexedDB storage
+        let targetSrc = '';
+        if (track.id) {
+          try {
+            const indexedSrc = await getTrackAudioUrl(track.id);
+            if (indexedSrc) {
+              targetSrc = indexedSrc;
+            }
+          } catch {}
         }
-      }
+
+        // 2. Fall back to track.audioMasterUrl
+        if (!targetSrc) {
+          targetSrc = resolveAudioUrl(track.audioMasterUrl);
+        }
+
+        if (isCancelled) return;
+
+        setCurrentAudioSrc(targetSrc);
+        setCurrentTime(0);
+        setDuration(track.durationSeconds || 218);
+        setHasError(false);
+        setIsPlaying(true);
+
+        if (audioRef.current) {
+          audioRef.current.src = targetSrc;
+          audioRef.current.volume = isMuted ? 0 : volume;
+          audioRef.current.currentTime = 0;
+          audioRef.current.load();
+
+          const playPromise = audioRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                if (!isCancelled) setIsPlaying(true);
+              })
+              .catch((err) => {
+                console.warn('Initial audio playback notice:', err?.message);
+                // Fallback to high-reliability stream only if completely unplayable
+                if (targetSrc !== RELIABLE_CDN_STREAM && audioRef.current && !isCancelled) {
+                  setCurrentAudioSrc(RELIABLE_CDN_STREAM);
+                  audioRef.current.src = RELIABLE_CDN_STREAM;
+                  audioRef.current.load();
+                  audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+                } else {
+                  if (!isCancelled) setIsPlaying(false);
+                }
+              });
+          }
+        }
+      };
+
+      initAudio();
+
+      return () => {
+        isCancelled = true;
+      };
     } else {
       setIsPlaying(false);
       if (audioRef.current) {

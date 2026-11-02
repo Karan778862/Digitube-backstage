@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Server,
   Lock,
+  LogOut,
 } from 'lucide-react';
 
 interface NavItemConfig {
@@ -82,7 +83,7 @@ const ALL_ADMIN_NAV: NavItemConfig[] = [
 
 export const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
-  const { releases, payouts, tickets, currentUser } = useDigiTube();
+  const { releases, payouts, tickets, currentUser, logoutUser } = useDigiTube();
 
   const userRole = currentUser?.role || 'GUEST';
 
@@ -185,6 +186,22 @@ export const AdminSidebar: React.FC = () => {
             </Link>
           );
         })}
+      </div>
+
+      {/* Explicit Sign Out Button */}
+      <div className="px-3 py-2 border-t border-slate-200 dark:border-slate-800 shrink-0">
+        <button
+          type="button"
+          onClick={async () => {
+            await logoutUser();
+            window.location.href = '/login';
+          }}
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl text-xs font-semibold transition-colors"
+          title="Sign Out of DigiTube Admin"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Sign Out / Log Out</span>
+        </button>
       </div>
 
       {/* Security Status Box */}

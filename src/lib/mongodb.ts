@@ -11,20 +11,15 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-if (process.env.NODE_ENV === 'development') {
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, {
-      maxPoolSize: 10,
-    });
-    global._mongoClientPromise = client.connect();
-  }
-  clientPromise = global._mongoClientPromise;
-} else {
+if (!global._mongoClientPromise) {
   client = new MongoClient(uri, {
     maxPoolSize: 10,
+    serverSelectionTimeoutMS: 4000,
+    connectTimeoutMS: 4000,
   });
-  clientPromise = client.connect();
+  global._mongoClientPromise = client.connect();
 }
+clientPromise = global._mongoClientPromise;
 
 export async function getDatabase(): Promise<Db> {
   const connectedClient = await clientPromise;

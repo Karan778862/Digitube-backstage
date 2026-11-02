@@ -60,9 +60,19 @@ export default function AdminReviewPage() {
         if (Array.isArray(local) && local.length > 0) {
           const serverMap = new Map(combined.filter((r) => r && r.id).map((r) => [r.id, r]));
           for (const item of local) {
-            if (item && item.id && !serverMap.has(item.id)) {
-              combined.unshift(item);
-              serverMap.set(item.id, item);
+            if (item && item.id) {
+              if (!serverMap.has(item.id)) {
+                combined.unshift(item);
+                serverMap.set(item.id, item);
+              } else {
+                const existing = serverMap.get(item.id)!;
+                if (item.artworkUrl && (!existing.artworkUrl || existing.artworkUrl.includes('unsplash'))) {
+                  existing.artworkUrl = item.artworkUrl;
+                }
+                if (Array.isArray(item.tracks) && item.tracks.length > 0) {
+                  existing.tracks = item.tracks;
+                }
+              }
             }
           }
         }

@@ -135,7 +135,7 @@ export async function findUserByEmail(email: string): Promise<StoredUser | null>
   try {
     const db = await Promise.race([
       getDatabase(),
-      new Promise<null>((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), 1500)),
+      new Promise<null>((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), 5000)),
     ]);
 
     if (db) {
@@ -166,8 +166,8 @@ export async function findUserByEmail(email: string): Promise<StoredUser | null>
         return mappedUser;
       }
     }
-  } catch (err) {
-    // Ignore DB timeout or SSL errors
+  } catch (err: any) {
+    console.warn('[AuthStore] Notice connecting to MongoDB Atlas:', err?.message);
   }
 
   return null;
@@ -187,7 +187,7 @@ export async function saveUser(userData: StoredUser): Promise<void> {
   try {
     const db = await Promise.race([
       getDatabase(),
-      new Promise<null>((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), 1500)),
+      new Promise<null>((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), 5000)),
     ]);
 
     if (db) {
@@ -197,8 +197,8 @@ export async function saveUser(userData: StoredUser): Promise<void> {
         { upsert: true }
       );
     }
-  } catch (err) {
-    // Logged in memory & /tmp
+  } catch (err: any) {
+    console.warn('[AuthStore] Notice persisting user to MongoDB Atlas:', err?.message);
   }
 }
 
